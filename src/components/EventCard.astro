@@ -1,0 +1,30 @@
+---
+import type { EventItem } from "../data/cms";
+
+const { event } = Astro.props as { event: EventItem };
+const hasDate = Boolean(event.date);
+const dateObj = hasDate ? new Date(event.date + 'T12:00:00') : null;
+const dateFormatter = new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+---
+
+<article class="glass flex h-full flex-col rounded-2xl p-5 transition hover:-translate-y-0.5">
+  <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+    <span class="inline-flex items-center gap-2 rounded-full bg-brand-600/10 px-3 py-1 font-medium text-brand-700 dark:text-brand-300">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+      {hasDate && dateObj ? dateFormatter.format(dateObj) : 'Datum folgt'}
+    </span>
+    {event.time && <span>• {event.time}</span>}
+  </div>
+  <h3 class="mt-3 font-display text-xl font-semibold text-slate-900 dark:text-white">{event.title}</h3>
+  <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+    {event.location ?? 'Ort wird noch bekanntgegeben'}
+    {event.address ? `, ${event.address}` : ''}
+  </p>
+  <div class="mt-auto pt-4">
+    {event.signupUrl ? (
+      <a href={event.signupUrl} class="inline-flex items-center gap-2 rounded-full bg-accent-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-accent-700">Anmelden</a>
+    ) : (
+      <span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">Ohne Anmeldung – komm einfach vorbei</span>
+    )}
+  </div>
+</article>

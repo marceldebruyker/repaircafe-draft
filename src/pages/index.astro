@@ -1,0 +1,317 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import NextEventBanner from "../components/NextEventBanner.astro";
+import Footer from "../components/Footer.astro";
+import Hero from "../components/Hero.astro";
+import FAQ from "../components/FAQ.astro";
+import CTA from "../components/CTA.astro";
+import { getUpcomingEvents, getAllEvents, getPosts, getGalleryImages, getHeroSlides } from "../data/cms";
+
+const [upcomingEvents, allEvents, latestPosts, galleryImages, heroSlides] = await Promise.all([
+  getUpcomingEvents(),
+  getAllEvents(),
+  getPosts(),
+  getGalleryImages(),
+  getHeroSlides()
+]);
+
+const nextEvent = upcomingEvents[0] ?? allEvents[0];
+const toPlainText = (body: any[] | undefined) => {
+  if (!Array.isArray(body)) return '';
+  const block = body.find((slice) => slice?._type === 'block' && Array.isArray(slice.children));
+  if (!block) return '';
+  return block.children.map((child: any) => child?.text ?? '').join(' ');
+};
+
+const posts = latestPosts.map((post) => {
+  const base = post.excerpt && post.excerpt.trim().length > 0 ? post.excerpt : toPlainText(post.body);
+  const preview = base && base.length > 0 ? (base.length > 200 ? `${base.slice(0, 197)}…` : base) : '';
+  return { ...post, preview };
+});
+
+const repairCategories = [
+  {
+    title: 'Elektronik & Kleingeräte',
+    desc: 'Toaster, Mixer, Lampen, Kopfhörer, Radios und Kabel – wir finden den Fehler gemeinsam.',
+    icon: 'electronics'
+  },
+  {
+    title: 'Textilien',
+    desc: 'Nähreparaturen, Knöpfe, Reißverschlüsse und Flicken – damit Lieblingsstücke weiterleben.',
+    icon: 'textile'
+  },
+  {
+    title: 'Fahrräder',
+    desc: 'Kleinigkeiten wie Bremsen einstellen, Schaltung nachziehen oder Schlauch wechseln.',
+    icon: 'bike'
+  },
+  {
+    title: 'Möbel & Holz',
+    desc: 'Stühle leimen, Schubladen richten und kleine Holzarbeiten wieder fit machen.',
+    icon: 'wood'
+  },
+  {
+    title: 'Spielzeug',
+    desc: 'Elektrisches und mechanisches Spielzeug reparieren wir, solange Ersatzteile verfügbar sind.',
+    icon: 'toy'
+  },
+  {
+    title: 'Software/Handy',
+    desc: 'Einrichtung, Updates, Fehleranalyse und praktische Tipps für digitale Alltagshelfer.',
+    icon: 'software'
+  }
+];
+
+const highlightGallery = galleryImages
+  .filter((item) => item.image)
+  .filter((item) => item.layout !== 'wide')
+  .slice(0, 8);
+---
+
+<BaseLayout title="Repair Café Leonberg – Reparieren statt Wegwerfen" description="Reparieren statt Wegwerfen – gemeinsam nachhaltiger in Leonberg. Kostenlos, ehrenamtlich und offen für alle.">
+  <Header />
+  <NextEventBanner event={nextEvent} ctaHref="/termine" />
+  <Hero ctaHref="/termine" heroImages={heroSlides} />
+
+  <section id="angebote" class="mt-16 md:mt-24">
+    <div class="container">
+      <div class="mx-auto max-w-3xl text-center">
+        <h2 class="font-display text-3xl font-bold text-slate-900 dark:text-white md:text-4xl">Was wir reparieren</h2>
+        <p class="mt-3 text-slate-700 dark:text-slate-300">Wir helfen bei vielen Alltagsgegenständen – je nach Team vor Ort.</p>
+      </div>
+      <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {repairCategories.map((item) => (
+          <article class="glass rounded-2xl p-6 transition hover:-translate-y-1 hover:shadow-xl">
+            <div class="flex items-start gap-4">
+              <span class="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-white/80 text-brand-600 shadow-sm shadow-brand-600/20 dark:bg-slate-900/70">
+                {item.icon === 'electronics' && (
+                  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="3" y="7" width="18" height="11" rx="2" />
+                    <path d="M7 7V5h2v2" />
+                    <path d="M15 7V5h2v2" />
+                    <path d="M3 14h18" />
+                    <path d="M8 18h8" />
+                  </svg>
+                )}
+                {item.icon === 'textile' && (
+                  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="8" cy="12" r="4" />
+                    <circle cx="16" cy="12" r="4" />
+                    <path d="M12 5v14" />
+                    <path d="M14.5 7.5L21 4" />
+                  </svg>
+                )}
+                {item.icon === 'bike' && (
+                  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="6" cy="16" r="4" />
+                    <circle cx="18" cy="16" r="4" />
+                    <path d="M6 16l4-7h4l4 7" />
+                    <path d="M10 9l2-3 3 3" />
+                  </svg>
+                )}
+                {item.icon === 'wood' && (
+                  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M4 5h10l2 3h4" />
+                    <path d="M4 10h6l2 3h8" />
+                    <path d="M4 15h14" />
+                    <path d="M4 20h10" />
+                  </svg>
+                )}
+                {item.icon === 'toy' && (
+                  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="8" cy="8" r="3" />
+                    <circle cx="16" cy="8" r="3" />
+                    <path d="M5 17h14v3H5z" />
+                    <path d="M7 12h10" />
+                  </svg>
+                )}
+                {item.icon === 'software' && (
+                  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="7" y="2" width="10" height="20" rx="2" />
+                    <path d="M11 18h2" />
+                    <path d="M9 6h6" />
+                  </svg>
+                )}
+              </span>
+              <div>
+                <h3 class="font-semibold text-slate-900 dark:text-white">{item.title}</h3>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">{item.desc}</p>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="aktuelles" class="mt-16 md:mt-24">
+    <div class="container">
+      <div class="mx-auto max-w-3xl text-center">
+        <h2 class="font-display text-3xl font-bold text-slate-900 dark:text-white md:text-4xl">Aktuelles</h2>
+        <p class="mt-3 text-slate-700 dark:text-slate-300">Neuigkeiten, Workshops und Einblicke aus dem Repair Café.</p>
+      </div>
+      <div class="mt-10 grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+        {[...posts].sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 3).map((post) => (
+          <article class="group flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-lg shadow-slate-900/5 transition hover:-translate-y-1 hover:shadow-xl">
+            {post.coverImage && (
+              <div class="relative aspect-[16/10] overflow-hidden bg-slate-200">
+                <img src={post.coverImage} alt={post.title} class="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+              </div>
+            )}
+            <div class="flex flex-1 flex-col gap-5 px-6 py-6">
+              <div class="space-y-2">
+                <time datetime={post.publishedAt ?? ''} class="text-xs font-semibold uppercase tracking-[0.2em] text-brand-600">
+                  {post.publishedAt
+                    ? new Intl.DateTimeFormat('de-DE', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric'
+                      }).format(new Date(post.publishedAt))
+                    : 'Datum folgt'}
+                </time>
+                <h3 class="font-display text-xl font-semibold text-slate-900">
+                  {post.title}
+                </h3>
+                {post.preview && (
+                  <p class="text-sm text-slate-600">{post.preview}</p>
+                )}
+              </div>
+              {post.tags && post.tags.length > 0 && (
+                <div class="flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div class="mt-auto pt-4">
+                <a
+                  href={post.slug ? `/aktuelles/${post.slug}` : '/aktuelles'}
+                  class="inline-flex items-center gap-2 text-sm font-semibold text-brand-600"
+                >
+                  Mehr erfahren
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+                </a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div class="mt-12 text-center">
+        <a href="/aktuelles" class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50">
+          Alle Beiträge ansehen
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="so-gehts" class="mt-16 md:mt-24">
+    <div class="container">
+      <div class="mx-auto max-w-3xl text-center">
+        <h2 class="font-display text-3xl font-bold text-slate-900 dark:text-white md:text-4xl">So funktioniert’s</h2>
+        <p class="mt-3 text-slate-700 dark:text-slate-300">Wir reparieren gemeinsam – du bist Teil der Lösung.</p>
+      </div>
+      <div class="mt-10 grid gap-5 md:grid-cols-4">
+        {[
+          { step: '1', title: 'Vorbeikommen', desc: 'Anmeldung ist meist nicht nötig. Bring dein Gerät und ggf. Zubehör mit.' },
+          { step: '2', title: 'Check-in', desc: 'Kurz beschreiben, was kaputt ist. Wir finden passende Helfer:innen.' },
+          { step: '3', title: 'Gemeinsam reparieren', desc: 'Wir zeigen dir Tricks und gehen Schritt für Schritt vor.' },
+          { step: '4', title: 'Teilen & Kaffee', desc: 'Erfolg feiern, Erfahrungen teilen – gerne auch bei Kuchen.' },
+        ].map((s) => (
+          <div class="glass rounded-2xl p-6">
+            <div class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-brand-600/10 font-semibold text-brand-700 dark:text-brand-300">{s.step}</div>
+            <h3 class="mt-3 font-semibold text-slate-900 dark:text-white">{s.title}</h3>
+            <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">{s.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="mt-16 md:mt-24">
+    <div class="container">
+      <div class="mx-auto max-w-3xl text-center">
+        <h2 class="font-display text-3xl font-bold text-slate-900 dark:text-white md:text-4xl">Häufige Fragen</h2>
+        <p class="mt-3 text-slate-700 dark:text-slate-300">Kurz & knapp beantwortet.</p>
+      </div>
+      <div class="mt-10">
+        <FAQ />
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-16 md:mt-24">
+    <div class="container">
+      <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div class="max-w-2xl">
+          <h2 class="font-display text-3xl font-bold text-slate-900 dark:text-white md:text-4xl">
+            Eindrücke aus dem Repair Café
+          </h2>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Swipe dich durch Momente vom letzten Repair Café – Werkbänke, Workshops und Community in Aktion.
+          </p>
+        </div>
+        <a href="/impressionen" class="inline-flex items-center gap-2 self-start rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50">
+          Mehr Impressionen ansehen
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+        </a>
+      </div>
+
+      <div class="relative mt-8">
+        <div class="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-slate-100 to-transparent dark:from-slate-950"></div>
+        <div class="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-slate-100 to-transparent dark:from-slate-950"></div>
+        <div class="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-4 md:px-6 lg:px-8">
+          {highlightGallery.map((item) => (
+            <figure class="snap-center shrink-0 grow-0 basis-3/4 sm:basis-1/2 lg:basis-1/4">
+              <div class="group relative aspect-[3/4] overflow-hidden rounded-[2.25rem] bg-slate-200 shadow-lg shadow-slate-900/10">
+                <img
+                  src={item.image}
+                  alt={item.alt}
+                  loading="lazy"
+                  class="h-full w-full scale-105 object-cover transition duration-500 group-hover:scale-110"
+                />
+                <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/60 opacity-0 transition duration-300 group-hover:opacity-100"></div>
+                <figcaption class="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-1 px-5 pb-5 text-white opacity-100 transition duration-300 group-hover:opacity-100 md:opacity-0">
+                  {item.title && <span class="font-display text-lg font-semibold">{item.title}</span>}
+                  {item.description && (
+                    <span class="text-xs uppercase tracking-[0.25em] text-white/70">{item.description}</span>
+                  )}
+                </figcaption>
+              </div>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CTA />
+
+  <section id="kontakt" class="mt-24">
+    <div class="container">
+      <div class="glass rounded-3xl p-8 md:p-12">
+        <div class="grid gap-6 md:grid-cols-2">
+          <div>
+            <h2 class="font-display text-2xl font-bold text-slate-900 dark:text-white">Kontakt</h2>
+            <p class="mt-3 text-slate-700 dark:text-slate-300">Fragen, Ideen oder Kooperationswunsch? Schreib uns gern.</p>
+            <div class="mt-6 space-y-2 text-sm">
+              <div>E-Mail: <a class="text-brand-700 hover:underline dark:text-brand-300" href="mailto:kontakt@repaircafe-leonberg.de">kontakt@repaircafe-leonberg.de</a></div>
+              <div>Instagram: <a class="text-brand-700 hover:underline dark:text-brand-300" href="#">@repaircafe.leonberg</a> (optional)</div>
+            </div>
+          </div>
+          <div>
+            <div class="rounded-xl bg-slate-100 p-4 text-sm dark:bg-slate-800">
+              <p class="font-semibold">Unsere Orte in Leonberg</p>
+              <p class="mt-2 text-slate-600 dark:text-slate-300">Die genauen Orte der nächsten Termine geben wir hier und auf Social Media bekannt.</p>
+              <a class="mt-3 inline-flex items-center gap-2 text-brand-700 hover:underline dark:text-brand-300" href="https://maps.google.com" target="_blank" rel="noopener">Auf Karte ansehen →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</BaseLayout>

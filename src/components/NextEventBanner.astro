@@ -1,0 +1,77 @@
+---
+import type { EventItem } from "../data/cms";
+
+export interface Props {
+  event?: EventItem;
+  ctaHref?: string;
+}
+
+const { event, ctaHref = "/termine" } = Astro.props as Props;
+
+const hasEvent = Boolean(event);
+let formattedDate = "";
+let locationLine = "";
+
+if (event) {
+  const date = new Date(`${event.date}T12:00:00`);
+  formattedDate = new Intl.DateTimeFormat("de-DE", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  }).format(date);
+
+  locationLine = [event.title, event.location].filter(Boolean).join(" · ");
+}
+---
+
+{hasEvent && (
+  <section class="bg-slate-100 dark:bg-slate-950">
+    <div class="container py-2 md:py-3">
+      <div class="flex flex-col gap-4 rounded-2xl bg-brand-600 px-6 py-5 text-white shadow-lg shadow-brand-900/20 md:flex-row md:items-center md:justify-between md:px-8 md:py-6">
+        <div class="flex flex-1 items-start gap-4 md:items-center">
+          <div class="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-white/15 text-white">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M7 3v3" />
+              <path d="M17 3v3" />
+              <rect x="4" y="5" width="16" height="16" rx="2" />
+              <path d="M4 11h16" />
+              <path d="M9 16h2" />
+            </svg>
+          </div>
+          <div class="space-y-1">
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75">
+              <span class="h-1.5 w-1.5 rounded-full bg-white/70"></span>
+              Nächster Termin
+            </span>
+            <p class="font-display text-lg font-semibold leading-snug md:text-xl">
+              {formattedDate}
+              {event.time ? ` · ${event.time}` : ""}
+            </p>
+            {locationLine && (
+              <p class="text-sm text-white/80 md:text-sm">
+                {locationLine}
+              </p>
+            )}
+          </div>
+        </div>
+        <div class="flex flex-none flex-col items-center gap-2 md:flex-row md:items-center md:gap-3">
+          {event.signupUrl && (
+            <a
+              href={event.signupUrl}
+              class="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-white/70 px-5 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-white/15"
+            >
+              Anmelden
+            </a>
+          )}
+          <a
+            href={ctaHref}
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-white px-5 py-2 text-xs font-semibold uppercase tracking-wide text-brand-700 shadow-sm transition hover:bg-slate-100"
+          >
+            Alle Termine
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+)}

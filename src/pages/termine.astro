@@ -1,0 +1,85 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import EventCard from "../components/EventCard.astro";
+import CTA from "../components/CTA.astro";
+import { getUpcomingEvents, getAllEvents } from "../data/cms";
+
+const [upcoming, allEvents] = await Promise.all([
+  getUpcomingEvents(),
+  getAllEvents()
+]);
+
+const events = upcoming.length ? upcoming : allEvents;
+---
+
+<BaseLayout title="Termine – Repair Café Leonberg" description="Alle anstehenden Repair Café Termine in Leonberg auf einen Blick.">
+  <Header />
+
+  <main class="bg-slate-100 py-12 md:py-16">
+    <section id="alle-termine">
+      <div class="container">
+        <div class="mx-auto max-w-3xl text-center">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Überblick
+          </span>
+          <h1 class="mt-5 font-display text-4xl font-extrabold text-slate-900 md:text-5xl">Alle Termine</h1>
+          <p class="mt-3 text-base text-slate-600">
+            Such dir deinen nächsten Repair Café Besuch heraus – wir freuen uns auf dich.
+          </p>
+          <div class="mt-6 space-y-4 text-left text-sm text-slate-600">
+            <p>
+              Das Repair Café Leonberg findet im Bürgerzentrum Stadtmitte statt (Neuköllner Straße 5, Leonberg).
+              Der Eingang liegt zwischen Leo-Center und Stadthalle direkt neben dem Zugang zur Volkshochschule –
+              der Lageplan vor Ort zeigt dir den Weg.
+            </p>
+            <p>
+              Am einfachsten erreichst du uns mit einem kurzen Busshuttle: Vom Bahnhof Leonberg (Busbahnhof) fahren
+              die Linien 631, 632, 640, 641, 652 oder 92 zur Haltestelle „Eltingen Leo-Center". Von dort sind es nur
+              zwei Minuten zu Fuß bis zum Bürgerzentrum Stadtmitte. Fahrplaninfos findest du z.&nbsp;B. bei
+              <a class="ml-1 text-brand-700 underline-offset-2 hover:underline" href="https://www.vvs.de" target="_blank" rel="noopener">vvs.de</a>
+              oder in der
+              <a class="ml-1 text-brand-700 underline-offset-2 hover:underline" href="https://moovitapp.com" target="_blank" rel="noopener">Moovit-App</a>.
+            </p>
+            <p>
+              Unsere Türen sind jeweils am zweiten Samstag im Monat von <strong>10:00 bis 13:00 Uhr</strong> geöffnet.
+              Komm gern etwas früher, damit wir dein Anliegen entspannt aufnehmen können.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {events.map((event) => (
+            <EventCard event={event} />
+          ))}
+        </div>
+
+        <div class="mt-14 grid gap-6 md:grid-cols-3">
+          {[
+            {
+              title: 'Zu Fuß',
+              desc: 'Von der Haltestelle Eltingen Leo-Center sind es nur 100–150 Meter zur Neuköllner Straße 5. Folge den Wegweisern zwischen Stadthalle, Volkshochschule und Leo-Center.',
+            },
+            {
+              title: 'Mit Bus & Bahn',
+              desc: 'S-Bahn S6 bis Leonberg, dann Bus 631, 632, 640, 641, 652 oder 92 zum Leo-Center (Fahrzeit 3–6 Min.). Die Linien starten direkt am Busbahnhof – 631/632 meist Steig 1, Linie 92 je nach Richtung an Steig 3 oder 5.',
+            },
+            {
+              title: 'Mit dem Auto',
+              desc: 'Parkmöglichkeiten findest du im Parkhaus des Leo-Centers oder an der Stadthalle (teilweise kostenpflichtig). Von dort sind es nur wenige Schritte zum Eingang.',
+            }
+          ].map((item) => (
+            <article class="rounded-3xl bg-white p-6 text-left shadow-lg shadow-slate-900/5">
+              <h2 class="font-display text-lg font-semibold text-slate-900">{item.title}</h2>
+              <p class="mt-3 text-sm text-slate-600">{item.desc}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <CTA />
+  <Footer />
+</BaseLayout>
