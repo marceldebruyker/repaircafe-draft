@@ -21,16 +21,14 @@ export default defineConfig({
   integrations: [tailwind({ applyBaseStyles: false })],
   prefetch: true,
   output: 'static',
-  redirects: [
-    {
-      source: '/admin',
-      destination: studioBaseUrl,
-      status: 307
+  redirects: {
+    '/admin': {
+      status: 307,
+      destination: studioBaseUrl
     },
-    {
-      source: '/admin/(.*)',
-      destination: `${studioBaseUrl}/$1`,
-      status: 307
+    '/admin/:path*': {
+      status: 307,
+      destination: `${studioBaseUrl}/:path*`
     }
-  ]
+  }
 });
