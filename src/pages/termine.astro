@@ -13,7 +13,28 @@ const [upcoming, allEvents] = await Promise.all([
   getAllEvents()
 ]);
 
-const events = upcoming.length ? upcoming : allEvents;
+const parseEventDate = (eventDate?: string) => {
+  if (!eventDate) return null;
+  const [year, month, day] = eventDate.split('-').map(Number);
+  if (!year || !month || !day) return null;
+  return new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+};
+
+const now = new Date();
+
+const filterUpcoming = (items: typeof upcoming) =>
+  [...items]
+    .filter((event) => {
+      const eventDate = parseEventDate(event?.date);
+      return eventDate ? eventDate.getTime() >= now.getTime() : true;
+    })
+    .sort((a, b) => {
+      const dateA = parseEventDate(a.date)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+      const dateB = parseEventDate(b.date)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+      return dateA - dateB;
+    });
+
+const events = filterUpcoming(upcoming.length ? upcoming : allEvents);
 ---
 
 <BaseLayout title="Termine – Repair Café Leonberg" description="Alle anstehenden Repair Café Termine in Leonberg auf einen Blick.">
@@ -51,11 +72,20 @@ const events = upcoming.length ? upcoming : allEvents;
           </div>
         </div>
 
-        <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {events.map((event) => (
-            <EventCard event={event} />
-          ))}
-        </div>
+        {events.length > 0 ? (
+          <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {events.map((event) => (
+              <EventCard event={event} />
+            ))}
+          </div>
+        ) : (
+          <div class="mt-10 rounded-3xl bg-white p-8 text-center shadow-lg shadow-slate-900/5">
+            <h2 class="font-display text-2xl font-semibold text-slate-900">Gerade keine Termine geplant</h2>
+            <p class="mt-3 text-sm text-slate-600">
+              Schau bald wieder vorbei – neue Repair Café Termine kündigen wir hier und auf unseren Kanälen an.
+            </p>
+          </div>
+        )}
 
         <div class="mt-14 grid gap-6 md:grid-cols-3">
           {[
