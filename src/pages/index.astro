@@ -18,7 +18,27 @@ const [upcomingEvents, allEvents, latestPosts, galleryImages, heroSlides] = awai
   getHeroSlides()
 ]);
 
-const nextEvent = upcomingEvents[0] ?? allEvents[0];
+const parseEventDate = (eventDate?: string) => {
+  if (!eventDate) return null;
+  const [year, month, day] = eventDate.split('-').map(Number);
+  if (!year || !month || !day) return null;
+  return new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+};
+
+const now = new Date();
+
+const ensureUpcomingEvent = (...collections: Array<typeof upcomingEvents>) => {
+  for (const events of collections) {
+    const match = events.find((event) => {
+      const eventDate = parseEventDate(event?.date);
+      return eventDate ? eventDate.getTime() >= now.getTime() : false;
+    });
+    if (match) return match;
+  }
+  return undefined;
+};
+
+const nextEvent = ensureUpcomingEvent(upcomingEvents, allEvents);
 const toPlainText = (body: any[] | undefined) => {
   if (!Array.isArray(body)) return '';
   const block = body.find((slice) => slice?._type === 'block' && Array.isArray(slice.children));
