@@ -6,6 +6,8 @@ import EventCard from "../components/EventCard.astro";
 import CTA from "../components/CTA.astro";
 import { getUpcomingEvents, getAllEvents } from "../data/cms";
 
+export const prerender = false;
+
 const [upcoming, allEvents] = await Promise.all([
   getUpcomingEvents(),
   getAllEvents()

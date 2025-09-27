@@ -3,17 +3,10 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
 import CTA from "../../components/CTA.astro";
-import { getPostBySlug, getPosts } from "../../data/cms";
+import { getPostBySlug } from "../../data/cms";
 import { toHTML } from "@portabletext/to-html";
 
-export const prerender = true;
-
-export async function getStaticPaths() {
-  const posts = await getPosts();
-  return posts
-    .filter((post) => post.slug)
-    .map((post) => ({ params: { slug: post.slug! } }));
-}
+export const prerender = false;
 
 const { slug } = Astro.params;
 
@@ -24,7 +17,7 @@ if (!slug) {
 const post = await getPostBySlug(slug);
 
 if (!post) {
-  return Astro.redirect('/aktuelles');
+  return new Response(null, { status: 404 });
 }
 
 const toPlainText = (body: any[] | undefined) => {

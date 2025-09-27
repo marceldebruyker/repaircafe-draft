@@ -5,6 +5,8 @@ import Footer from "../components/Footer.astro";
 import CTA from "../components/CTA.astro";
 import { getPosts } from "../data/cms";
 
+export const prerender = false;
+
 const sortedPosts = await getPosts();
 
 const toPlainText = (body: any[] | undefined) => {

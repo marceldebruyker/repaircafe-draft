@@ -5,6 +5,8 @@ import Footer from "../components/Footer.astro";
 import CTA from "../components/CTA.astro";
 import { getGalleryImages } from "../data/cms";
 
+export const prerender = false;
+
 const galleryImages = await getGalleryImages();
 
 const filters = [

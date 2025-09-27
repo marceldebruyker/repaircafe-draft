@@ -8,6 +8,8 @@ import FAQ from "../components/FAQ.astro";
 import CTA from "../components/CTA.astro";
 import { getUpcomingEvents, getAllEvents, getPosts, getGalleryImages, getHeroSlides } from "../data/cms";
 
+export const prerender = false;
+
 const [upcomingEvents, allEvents, latestPosts, galleryImages, heroSlides] = await Promise.all([
   getUpcomingEvents(),
   getAllEvents(),

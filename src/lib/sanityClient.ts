@@ -4,6 +4,7 @@ const projectId = import.meta.env.SANITY_PROJECT_ID ?? '2t9p8f1y';
 const dataset = import.meta.env.SANITY_DATASET ?? 'production';
 const apiVersion = import.meta.env.SANITY_API_VERSION ?? '2023-05-26';
 const token = import.meta.env.SANITY_READ_TOKEN;
+const useCdn = import.meta.env.SANITY_USE_CDN === 'true';
 
 export const isSanityConfigured = Boolean(projectId && dataset);
 
@@ -16,7 +17,7 @@ export const sanityClient = isSanityConfigured
       projectId,
       dataset,
       apiVersion,
-      useCdn: true,
+      useCdn,
       token,
       perspective: token ? 'previewDrafts' : 'published'
     })
