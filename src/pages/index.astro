@@ -89,6 +89,24 @@ const highlightGallery = galleryImages
   .filter((item) => item.image)
   .filter((item) => item.layout !== 'wide')
   .slice(0, 8);
+
+const testimonials = [
+  {
+    name: 'Svenja, 34',
+    role: 'Leonbergerin seit 10 Jahren',
+    quote: 'Ich war total überrascht, wie viel ich selbst reparieren kann – mit Unterstützung und guter Laune macht Technik plötzlich wieder Spaß.'
+  },
+  {
+    name: 'Thomas, 61',
+    role: 'Stammgast im Repair Café',
+    quote: 'Die Reparatur meines alten Plattenspielers hat geklappt und ich habe noch neue Leute kennengelernt. Das ist echte Nachbarschaftshilfe.'
+  },
+  {
+    name: 'Mira, 22',
+    role: 'Studentin & Ehrenamtliche',
+    quote: 'Wir lernen voneinander, retten Dinge vor dem Müll und haben dabei noch eine gute Zeit – genau so stelle ich mir Nachhaltigkeit vor.'
+  }
+];
 ---
 
 <BaseLayout title="Repair Café Leonberg – Reparieren statt Wegwerfen" description="Reparieren statt Wegwerfen – gemeinsam nachhaltiger in Leonberg. Kostenlos, ehrenamtlich und offen für alle.">
@@ -247,6 +265,31 @@ const highlightGallery = galleryImages
             <h3 class="mt-3 font-semibold text-slate-900 dark:text-white">{s.title}</h3>
             <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">{s.desc}</p>
           </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="stimmen" class="mt-16 md:mt-24">
+    <div class="container">
+      <div class="mx-auto max-w-3xl text-center">
+        <h2 class="font-display text-3xl font-bold text-slate-900 dark:text-white md:text-4xl">Das sagen Besucher:innen</h2>
+        <p class="mt-3 text-slate-700 dark:text-slate-300">Feedback aus dem Repair Café – echte Stimmen, die Mut machen.</p>
+      </div>
+      <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {testimonials.map((testimonial) => (
+          <figure class="glass flex h-full flex-col rounded-2xl p-6 text-left">
+            <blockquote class="text-slate-700 dark:text-slate-300">
+              <svg class="mb-3 h-8 w-8 text-brand-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M7.17 6A5 5 0 0 0 2 11v7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1H6.74a3.17 3.17 0 0 1 3-3.57 1 1 0 0 0 1-1V4.72a1 1 0 0 0-1.08-1.01A5 5 0 0 0 7.17 6Zm12 0a5 5 0 0 0-5.17 5v7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-2.26a3.17 3.17 0 0 1 3-3.57 1 1 0 0 0 1-1V4.72a1 1 0 0 0-1.07-1.01A5 5 0 0 0 19.17 6Z" />
+              </svg>
+              <p class="text-base leading-relaxed">{testimonial.quote}</p>
+            </blockquote>
+            <figcaption class="mt-6 border-t border-white/40 pt-4 text-sm text-slate-600 dark:text-slate-400">
+              <div class="font-semibold text-slate-900 dark:text-white">{testimonial.name}</div>
+              <div>{testimonial.role}</div>
+            </figcaption>
+          </figure>
         ))}
       </div>
     </div>
