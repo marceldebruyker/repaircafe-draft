@@ -35,7 +35,7 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         display: ['Outfit', 'Inter', 'system-ui', 'sans-serif'],
-        logo: ['"Saira Stencil One"', 'cursive']
+        logo: ['"Curlz MT"', 'cursive']
       },
       container: {
         center: true,
