@@ -1,0 +1,67 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+const pageTitle = 'Mitgliederbereich – Repair Café Leonberg';
+const pageDescription = 'Interner Bereich für Mitglieder des Repair Café Leonberg.';
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <Header />
+
+  <main class="bg-slate-100 py-12 md:py-16">
+    <section>
+      <div class="container">
+        <div class="mx-auto max-w-3xl text-center">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 shadow-sm">
+            Interner Bereich
+          </span>
+          <h1 class="mt-5 font-display text-4xl font-extrabold text-slate-900 md:text-5xl">
+            Members Area
+          </h1>
+          <p class="mt-3 text-base text-slate-600">
+            Dieser Bereich steht ausschließlich aktiven Mitgliedern des Repair Café Leonberg zur Verfügung.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-12">
+      <div class="container">
+        <div class="mx-auto max-w-3xl rounded-3xl bg-white p-10 text-center shadow-xl shadow-slate-900/5">
+          <p class="text-lg font-semibold uppercase tracking-[0.25em] text-slate-400">Members Area</p>
+          <p class="mt-6 text-sm text-slate-600">Interner Platzhalter – Inhalte folgen.</p>
+          <button
+            id="logout-button"
+            type="button"
+            class="mt-10 inline-flex items-center justify-center rounded-full border border-slate-200 px-6 py-3 text-sm font-medium text-slate-600 transition hover:-translate-y-0.5 hover:border-slate-300 hover:text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            Abmelden
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+
+  <script>
+    const AUTH_KEY = 'repaircafe.members.authenticated';
+    const redirectToLogin = () => {
+      window.location.replace('/login');
+    };
+
+    if (sessionStorage.getItem(AUTH_KEY) !== 'true') {
+      redirectToLogin();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const logoutButton = document.getElementById('logout-button');
+      logoutButton?.addEventListener('click', () => {
+        sessionStorage.removeItem(AUTH_KEY);
+        redirectToLogin();
+      });
+    });
+  </script>
+</BaseLayout>

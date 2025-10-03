@@ -9,19 +9,40 @@ export const prerender = false;
 
 const sortedPosts = await getPosts();
 
-const toPlainText = (body: any[] | undefined) => {
+const normaliseWhitespace = (value: string) => value.replace(/\s+/g, ' ').trim();
+
+const bodyToPlainText = (body: any[] | undefined) => {
   if (!Array.isArray(body)) return '';
-  const block = body.find((slice) => slice?._type === 'block' && Array.isArray(slice.children));
-  if (!block) return '';
-  return block.children.map((child: any) => child?.text ?? '').join(' ');
+  return body
+    .map((slice) => {
+      if (slice?._type === 'block' && Array.isArray(slice.children)) {
+        return slice.children.map((child: any) => child?.text ?? '').join('');
+      }
+      if (slice?._type === 'image' && typeof slice?.alt === 'string') {
+        return slice.alt;
+      }
+      return '';
+    })
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
+const createPreview = (text: string, limit = 220) => {
+  const base = normaliseWhitespace(text);
+  if (!base) return '';
+  if (base.length <= limit) return base;
+  const clipped = base.slice(0, limit);
+  const lastSpace = clipped.lastIndexOf(' ');
+  const safeClip = lastSpace > 0 ? clipped.slice(0, lastSpace) : clipped;
+  return `${safeClip.trim()}…`;
 };
 
 const posts = sortedPosts.map((post) => {
-  const base = post.excerpt && post.excerpt.trim().length > 0 ? post.excerpt : toPlainText(post.body);
-  const preview = base && base.length > 0 ? (base.length > 220 ? `${base.slice(0, 217)}…` : base) : '';
+  const plain = post.bodyPlain && post.bodyPlain.trim().length > 0 ? post.bodyPlain : bodyToPlainText(post.body);
   return {
     ...post,
-    preview
+    preview: createPreview(plain ?? '')
   };
 });
 

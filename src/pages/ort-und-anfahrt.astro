@@ -1,0 +1,314 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import CTA from "../components/CTA.astro";
+
+Astro.head = `
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha384-4oVfWDXWg1AStxoGFqDG5Ut7r9ZGB3itb9lUDDSw6bd1q2p9iXwQl5xY+JMWsJZ9"
+    crossorigin=""
+  />
+  <style>
+    #location-map {
+      width: 100%;
+      height: 100%;
+      min-height: 320px;
+    }
+
+    @media (min-width: 640px) {
+      #location-map {
+        min-height: 360px;
+      }
+    }
+
+    #location-map .leaflet-tile {
+      filter: saturate(1.1) contrast(1.05);
+    }
+
+    .leaflet-container {
+      font-family: inherit;
+    }
+
+    .rc-map-marker {
+      background: none;
+      border: none;
+    }
+
+    .rc-map-marker .pin {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      background: linear-gradient(135deg, #dd714d, #f19a5f);
+      border-radius: 18px 18px 0 18px;
+      transform: rotate(45deg);
+      box-shadow: 0 6px 18px rgba(221, 113, 77, 0.35);
+    }
+
+    .rc-map-marker .pulse {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 38px;
+      height: 38px;
+      margin-top: -19px;
+      margin-left: -19px;
+      border-radius: 50%;
+      background: rgba(221, 113, 77, 0.2);
+      animation: rc-pulse 2.4s ease-out infinite;
+    }
+
+    @keyframes rc-pulse {
+      0% {
+        transform: scale(0.4);
+        opacity: 0.7;
+      }
+      100% {
+        transform: scale(1.4);
+        opacity: 0;
+      }
+    }
+  </style>
+`;
+---
+
+<BaseLayout title="Ort & Anfahrt – Repair Café Leonberg" description="Anfahrt und Treffpunkt des Repair Café Leonberg im Bürgerzentrum Stadtmitte.">
+  <Header />
+
+  <main class="bg-slate-100 py-12 md:py-16">
+    <section class="pb-12">
+      <div class="container">
+        <div class="mx-auto max-w-4xl text-center">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Ort &amp; Anfahrt
+          </span>
+          <h1 class="mt-5 font-display text-4xl font-extrabold text-slate-900 md:text-5xl">
+            Hier finden Sie uns
+          </h1>
+          <p class="mt-3 text-base text-slate-600">
+            Adresse, ÖPNV, Parken &amp; barrierearme Zugänge – der beste Weg zum Repair Café Leonberg.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="pb-8">
+      <div class="container">
+        <div class="grid gap-12 lg:grid-cols-2 lg:items-start">
+          <div class="space-y-6 text-sm leading-relaxed text-slate-600 lg:text-base">
+            <p>
+              Der Eingang liegt zwischen Leo-Center und Stadthalle direkt neben dem Zugang zur Volkshochschule –
+              der Lageplan vor Ort weist Ihnen den Weg.
+            </p>
+            <p>
+              Am einfachsten erreichen Sie uns mit einem kurzen Busshuttle: Vom Bahnhof Leonberg (Busbahnhof) fahren
+              die Linien 631, 632, 640, 641, 652 oder 92 zur Haltestelle „Eltingen Leo-Center". Von dort sind es nur
+              zwei Minuten zu Fuß bis zum Bürgerzentrum Stadtmitte. Fahrplaninfos finden Sie z.&nbsp;B. bei
+              <a class="ml-1 text-brand-700 underline-offset-2 hover:underline" href="https://www.vvs.de" target="_blank" rel="noopener">vvs.de</a>
+              oder in der
+              <a class="ml-1 text-brand-700 underline-offset-2 hover:underline" href="https://moovitapp.com" target="_blank" rel="noopener">Moovit-App</a>.
+            </p>
+            <p>
+              Unsere Türen sind jeweils am zweiten Samstag im Monat von <strong>10:00 bis 13:00 Uhr</strong> geöffnet.
+              Kommen Sie gern etwas früher, damit wir Ihr Anliegen entspannt aufnehmen können.
+            </p>
+          </div>
+
+          <div class="relative overflow-hidden rounded-[32px] border border-white/30 bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-800 p-[1px] shadow-2xl shadow-slate-900/15">
+            <div class="relative aspect-square overflow-hidden rounded-[30px] sm:aspect-[5/4]">
+              <div data-map-placeholder class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-slate-900 via-slate-900/80 to-slate-800 text-center text-white/70">
+                <span class="rounded-full border border-white/20 px-3 py-1 text-xs uppercase tracking-[0.28em]">Karte lädt</span>
+                <p class="mx-auto max-w-[14rem] text-xs leading-relaxed text-white/80">
+                  Interaktive Karte wird geladen. Prüfen Sie ggf. Ihre Verbindung.
+                </p>
+              </div>
+              <div id="location-map" class="absolute inset-0 h-full w-full"></div>
+              <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/45 via-slate-900/10 to-transparent"></div>
+              <div class="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/15 via-transparent to-transparent"></div>
+            </div>
+            <div class="pointer-events-none absolute -left-16 top-1/2 hidden h-48 w-48 -translate-y-1/2 rounded-full bg-brand-500/30 blur-3xl md:block"></div>
+            <div class="pointer-events-none absolute -right-12 bottom-0 hidden h-40 w-40 translate-y-1/3 rounded-full bg-sky-400/30 blur-3xl md:block"></div>
+            <div class="absolute inset-x-6 bottom-6">
+              <div class="rounded-2xl bg-white/95 px-5 py-4 text-left text-sm text-slate-700 shadow-xl shadow-slate-900/10 backdrop-blur">
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Repair Café Leonberg</p>
+                <p class="mt-2 text-base font-semibold text-slate-900">Bürgerzentrum Stadtmitte</p>
+                <p class="text-sm text-slate-600">Neuköllner Straße&nbsp;5 · 71229 Leonberg</p>
+                <p class="mt-3 text-xs uppercase tracking-[0.18em] text-slate-400">Jeden 2. Samstag · 10:00 – 13:00 Uhr</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script is:inline>
+          (() => {
+            const RC_MAP_CENTER = [48.7952078, 9.0126756];
+            const LEAFLET_SCRIPT_SRC = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            const LEAFLET_INTEGRITY = 'sha384-BN1IjSJlpQdkdLyCkwdQaqKdpo6kKiC9JIhbSAVnX1nvUs61f7o27l+u3pvBM6yG';
+            const LEAFLET_ATTR = 'data-rc-leaflet';
+
+            const loadLeaflet = () => {
+              if (typeof window === 'undefined') return Promise.reject();
+              if (window.L) return Promise.resolve(window.L);
+
+              return new Promise((resolve, reject) => {
+                const existing = document.querySelector(`script[${LEAFLET_ATTR}]`);
+                if (existing) {
+                  existing.addEventListener('load', () => resolve(window.L), { once: true });
+                  existing.addEventListener('error', reject, { once: true });
+                  return;
+                }
+
+                const script = document.createElement('script');
+                script.src = LEAFLET_SCRIPT_SRC;
+                script.integrity = LEAFLET_INTEGRITY;
+                script.crossOrigin = '';
+                script.defer = true;
+                script.setAttribute(LEAFLET_ATTR, 'true');
+                script.addEventListener('load', () => resolve(window.L), { once: true });
+                script.addEventListener('error', reject, { once: true });
+                document.head.appendChild(script);
+              });
+            };
+
+            const initMap = async () => {
+              const mapContainer = document.getElementById('location-map');
+              if (!mapContainer || mapContainer.dataset.initialized === 'true') return;
+
+              try {
+                const L = await loadLeaflet();
+                if (!L) return;
+
+                mapContainer.dataset.initialized = 'true';
+                const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+                const map = L.map(mapContainer, {
+                  center: RC_MAP_CENTER,
+                  zoom: 14,
+                  zoomControl: false,
+                  scrollWheelZoom: false,
+                  dragging: window.innerWidth >= 640,
+                  attributionControl: true
+                });
+
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                  maxZoom: 19,
+                  subdomains: 'abcd',
+                  attribution: '&copy; OpenStreetMap-Mitwirkende &copy; CARTO'
+                }).addTo(map);
+
+                const marker = L.marker(RC_MAP_CENTER, {
+                  icon: L.divIcon({
+                    className: 'rc-map-marker',
+                    html: '<span class="pulse"></span><span class="pin"></span>',
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 32]
+                  })
+                }).addTo(map);
+
+                marker.bindPopup('<strong>Repair Café Leonberg</strong><br/>Neuköllner Straße 5<br/>71229 Leonberg', {
+                  offset: L.point(0, -12),
+                  closeButton: false,
+                  autoPan: false
+                });
+
+                marker.openPopup();
+
+                const placeholder = mapContainer.querySelector('[data-map-placeholder]');
+                if (placeholder instanceof HTMLElement) {
+                  placeholder.style.transition = 'opacity 0.4s ease';
+                  placeholder.style.opacity = '0';
+                  setTimeout(() => placeholder.remove(), 400);
+                }
+
+                if (prefersReducedMotion) {
+                  const pulse = mapContainer.querySelector('.rc-map-marker .pulse');
+                  if (pulse) {
+                    pulse.style.animation = 'none';
+                  }
+                }
+
+                const toggleDragging = () => {
+                  if (window.innerWidth < 640) {
+                    map.dragging.disable();
+                  } else {
+                    map.dragging.enable();
+                  }
+                };
+
+                toggleDragging();
+                window.addEventListener('resize', toggleDragging);
+
+                requestAnimationFrame(() => {
+                  map.invalidateSize();
+                  map.setView(RC_MAP_CENTER, 14);
+                });
+              } catch (error) {
+                console.error('Leaflet konnte nicht geladen werden', error);
+                const placeholder = document.querySelector('[data-map-placeholder]');
+                if (placeholder instanceof HTMLElement) {
+                  placeholder.style.opacity = '1';
+                  placeholder.style.padding = '2rem';
+                  placeholder.innerHTML = '<span style="font-size:0.95rem;font-weight:600">Karte gerade nicht verfügbar</span><p style="margin-top:0.75rem;font-size:0.85rem;line-height:1.5">Bitte laden Sie die Seite neu oder prüfen Sie Ihre Internetverbindung.</p>';
+                }
+              }
+            };
+
+            const boot = () => {
+              initMap();
+            };
+
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+              boot();
+            } else {
+              document.addEventListener('DOMContentLoaded', boot, { once: true });
+            }
+
+            window.addEventListener('load', boot, { once: true });
+            document.addEventListener('astro:after-swap', boot);
+          })();
+        </script>
+
+        <div class="mt-12 grid gap-6 md:grid-cols-3">
+          {[
+            {
+              title: 'Zu Fuß',
+              desc: 'Von der Haltestelle Eltingen Leo-Center sind es nur 100–150 Meter zur Neuköllner Straße 5. Folgen Sie den Wegweisern zwischen Stadthalle, Volkshochschule und Leo-Center.',
+            },
+            {
+              title: 'Mit Bus & Bahn',
+              desc: 'S-Bahn S6 bis Leonberg, dann Bus 631, 632, 640, 641, 652 oder 92 zum Leo-Center (Fahrzeit 3–6 Min.). Die Linien starten direkt am Busbahnhof – 631/632 meist Steig 1, Linie 92 je nach Richtung an Steig 3 oder 5.',
+            },
+            {
+              title: 'Mit dem Auto',
+              desc: 'Parkmöglichkeiten finden Sie im Parkhaus des Leo-Centers oder an der Stadthalle (teilweise kostenpflichtig). Von dort sind es nur wenige Schritte zum Eingang.',
+            }
+          ].map((item) => (
+            <article class="rounded-3xl bg-white p-6 text-left shadow-lg shadow-slate-900/5">
+              <h2 class="font-display text-lg font-semibold text-slate-900">{item.title}</h2>
+              <p class="mt-3 text-sm text-slate-600">{item.desc}</p>
+            </article>
+          ))}
+        </div>
+
+        <div class="mt-12 rounded-3xl bg-white p-8 text-center shadow-lg shadow-slate-900/5">
+          <h2 class="font-display text-2xl font-semibold text-slate-900">Termine im Überblick</h2>
+          <p class="mt-3 text-sm text-slate-600">
+            Alle Daten zu kommenden Repair Cafés finden Sie auf unserer Terminseite.
+          </p>
+          <a
+            href="/termine"
+            class="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:bg-brand-700"
+          >
+            Zu den Terminen
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <CTA />
+  <Footer />
+</BaseLayout>

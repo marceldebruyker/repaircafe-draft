@@ -1,0 +1,277 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import CTA from "../components/CTA.astro";
+import { getGalleryImages, type GalleryItem } from "../data/cms";
+
+export const prerender = false;
+
+type GalleryWithImage = GalleryItem & { image: string };
+
+const rawGalleryItems = (await getGalleryImages())
+  .map((item) => {
+    const image = item.image ?? (item as unknown as { src?: string })?.src;
+    if (!image) return undefined;
+    return { ...item, image } as GalleryWithImage;
+  })
+  .filter(Boolean) as GalleryWithImage[];
+
+const categoryLabels: Record<string, string> = {
+  'elektronik-haushalt': 'Elektronik & Haushalt',
+  'lampen-licht': 'Lampen & Licht',
+  'it-medien': 'IT & Medien',
+  fahrrad: 'Fahrrad',
+  'textil-naehen': 'Textil & Nähen',
+  'moebel-holz': 'Möbel & Holz',
+  'spielzeug-sonstiges': 'Spielzeug & Sonstiges',
+  'kaffee-community': 'Kaffee & Community'
+};
+
+const categoryAliases: Record<string, string> = {
+  repair: 'elektronik-haushalt',
+  workshop: 'textil-naehen',
+  community: 'kaffee-community'
+};
+
+const normalizeCategory = (value?: string) => {
+  if (!value) return 'spielzeug-sonstiges';
+  const lowered = value.toLowerCase();
+  if (categoryLabels[lowered]) return lowered;
+  if (categoryAliases[lowered]) return categoryAliases[lowered];
+  return 'spielzeug-sonstiges';
+};
+
+type NormalizedGalleryItem = GalleryWithImage & { categories: string[] };
+
+const galleryItems: NormalizedGalleryItem[] = rawGalleryItems.map((item) => {
+  const rawCategories = Array.isArray((item as any).categories) && (item as any).categories.length
+    ? (item as any).categories
+    : (item as any).category
+      ? [(item as any).category]
+      : [];
+
+  const categories = rawCategories
+    .map((category) => normalizeCategory(String(category)))
+    .filter((category, index, array) => array.indexOf(category) === index);
+
+  return {
+    ...item,
+    categories: categories.length ? categories : ['spielzeug-sonstiges']
+  };
+});
+
+const filters = [
+  { key: 'all', label: 'Alle Momente' },
+  ...Object.entries(categoryLabels).map(([key, label]) => ({ key, label }))
+];
+
+const layoutClass = (layout: 'standard' | 'wide' | 'tall' | undefined) => {
+  switch (layout) {
+    case 'wide':
+      return 'sm:col-span-2';
+    case 'tall':
+      return 'sm:row-span-2';
+    default:
+      return '';
+  }
+};
+---
+
+<BaseLayout title="Galerie – Repair Café Leonberg" description="Fotos, Eindrücke und Highlights aus dem Repair Café Leonberg.">
+  <Header />
+
+  <main class="bg-slate-100 py-12 md:py-16">
+    <section class="pb-12">
+      <div class="container">
+        <div class="mx-auto max-w-4xl text-center">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Galerie
+          </span>
+          <h1 class="mt-5 font-display text-4xl font-extrabold text-slate-900 md:text-5xl">
+            Momente aus dem Repair Café
+          </h1>
+          <p class="mt-3 text-base text-slate-600">
+            Hinter den Kulissen von Reparaturtischen, Workshops und Community-Momenten – eine Galerie zum Durchstöbern.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="pb-12">
+      <div class="container">
+        <div class="flex flex-wrap justify-center gap-3" id="gallery-filters">
+          {filters.map((filter, index) => (
+            <button
+              type="button"
+              class={`filter-chip inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition ${index === 0 ? 'bg-brand-600 text-white shadow-brand-900/20' : 'bg-white text-slate-500 shadow-sm hover:bg-slate-200/80'}`}
+              data-filter={filter.key}
+              aria-pressed={index === 0}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+
+        <div id="gallery-grid" class="mt-12 grid auto-rows-[14rem] gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {galleryItems.map((item) => (
+            <article
+              class={`gallery-item group relative overflow-hidden rounded-3xl bg-white shadow-lg shadow-slate-900/5 transition hover:-translate-y-1 hover:shadow-2xl ${layoutClass(item.layout)}`}
+              data-categories={item.categories.join(',')}
+              data-title={item.title ?? ''}
+              data-description={item.description ?? ''}
+              data-image={item.image}
+              data-alt={item.alt ?? item.title ?? ''}
+            >
+              <div class="relative h-full w-full">
+                <img src={item.image} alt={item.alt ?? ''} loading="lazy" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/60 opacity-0 transition duration-300 group-hover:opacity-100"></div>
+                <div class="absolute left-4 top-4 flex flex-wrap gap-2">
+                  {item.categories.map((category) => (
+                    <span class="rounded-full bg-brand-600/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white shadow shadow-brand-900/30">
+                      {categoryLabels[category] ?? category}
+                    </span>
+                  ))}
+                </div>
+                <div class="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-1 px-5 pb-5 text-white opacity-0 transition duration-300 group-hover:opacity-100">
+                  {item.title && (
+                    <h3 class="font-display text-lg font-semibold">{item.title}</h3>
+                  )}
+                  {item.description && (
+                    <p class="text-xs uppercase tracking-[0.22em] text-white/80">{item.description}</p>
+                  )}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <CTA />
+  <Footer />
+
+  <div
+    id="gallery-lightbox"
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/80 p-6 backdrop-blur transition duration-300 opacity-0 pointer-events-none"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="lightbox-title"
+  >
+    <button
+      id="gallery-lightbox-close"
+      type="button"
+      class="absolute right-6 top-6 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-slate-800 shadow-lg shadow-slate-900/30 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white"
+      aria-label="Galerie schließen"
+    >
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M6 18L18 6" /></svg>
+    </button>
+    <div class="max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-[2.5rem] border border-white/10 bg-gradient-to-b from-slate-900/90 via-slate-900/80 to-slate-950/95 shadow-2xl shadow-slate-950/60">
+      <div class="relative">
+        <div class="flex items-center justify-center bg-slate-900">
+          <img id="lightbox-image" src="" alt="" class="max-h-[70vh] w-full scale-95 object-contain opacity-0 transition duration-500 ease-out" />
+        </div>
+        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/95 to-slate-900/10 px-6 py-6 text-white backdrop-blur text-center">
+          <h3 id="lightbox-title" class="font-display text-xl font-semibold tracking-tight">&nbsp;</h3>
+          <p id="lightbox-description" class="mt-2 text-sm text-slate-200/80">&nbsp;</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const filterButtons = Array.from(document.querySelectorAll('[data-filter]')) as HTMLButtonElement[];
+      const items = Array.from(document.querySelectorAll<HTMLElement>('.gallery-item'));
+      const lightbox = document.getElementById('gallery-lightbox');
+      const lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement | null;
+      const lightboxTitle = document.getElementById('lightbox-title');
+      const lightboxDescription = document.getElementById('lightbox-description');
+      const lightboxClose = document.getElementById('gallery-lightbox-close');
+
+      function applyFilter(filter: string) {
+        items.forEach((item) => {
+          const categories = (item.dataset.categories ?? '')
+            .split(',')
+            .map((value) => value.trim())
+            .filter(Boolean);
+          const matches = filter === 'all' || categories.includes(filter);
+          item.classList.toggle('hidden', !matches);
+        });
+      }
+
+      filterButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const filter = button.dataset.filter ?? 'all';
+
+          filterButtons.forEach((btn) => {
+            const isActive = btn === button;
+            btn.setAttribute('aria-pressed', String(isActive));
+            btn.classList.toggle('bg-brand-600', isActive);
+            btn.classList.toggle('text-white', isActive);
+            btn.classList.toggle('shadow-brand-900/20', isActive);
+            btn.classList.toggle('bg-white', !isActive);
+            btn.classList.toggle('text-slate-500', !isActive);
+          });
+
+          applyFilter(filter);
+        });
+      });
+
+      function openLightbox(item: HTMLElement) {
+        if (!lightbox || !lightboxImage || !lightboxTitle || !lightboxDescription) return;
+        const imageSrc = item.dataset.image ?? '';
+        if (!imageSrc) return;
+        lightboxImage.src = imageSrc;
+        lightboxImage.alt = item.dataset.alt ?? '';
+        const title = item.dataset.title?.trim();
+        const description = item.dataset.description?.trim();
+        lightboxTitle.textContent = title && title.length ? title : 'Impression aus dem Repair Café';
+        lightboxDescription.textContent = description && description.length ? description : 'Gemeinsam reparieren macht den Unterschied.';
+        lightbox.classList.remove('pointer-events-none', 'opacity-0');
+        lightbox.classList.add('opacity-100');
+        requestAnimationFrame(() => {
+          lightboxImage.classList.remove('scale-95', 'opacity-0');
+          lightboxImage.classList.add('scale-100', 'opacity-100');
+        });
+        document.body.classList.add('overflow-hidden');
+      }
+
+      function closeLightbox() {
+        if (!lightbox || !lightboxImage) return;
+        lightbox.classList.add('pointer-events-none');
+        lightbox.classList.remove('opacity-100');
+        lightbox.classList.add('opacity-0');
+        lightboxImage.classList.remove('scale-100', 'opacity-100');
+        lightboxImage.classList.add('scale-95', 'opacity-0');
+        lightboxImage.src = '';
+        document.body.classList.remove('overflow-hidden');
+      }
+
+      items.forEach((item) => {
+        item.addEventListener('click', () => openLightbox(item));
+        item.addEventListener('keypress', (event) => {
+          if (event.key === 'Enter') {
+            openLightbox(item);
+          }
+        });
+        item.setAttribute('tabindex', '0');
+        item.setAttribute('role', 'button');
+        item.setAttribute('aria-label', `Bild öffnen: ${item.dataset.title ?? 'Impression'}`);
+      });
+
+      lightboxClose?.addEventListener('click', closeLightbox);
+      lightbox?.addEventListener('click', (event) => {
+        if (event.target === lightbox) {
+          closeLightbox();
+        }
+      });
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeLightbox();
+        }
+      });
+    });
+  </script>
+</BaseLayout>

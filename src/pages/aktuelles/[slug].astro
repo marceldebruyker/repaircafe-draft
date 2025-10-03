@@ -20,14 +20,27 @@ if (!post) {
   return new Response(null, { status: 404 });
 }
 
-const toPlainText = (body: any[] | undefined) => {
+const normaliseWhitespace = (value: string) => value.replace(/\s+/g, ' ').trim();
+
+const bodyToPlainText = (body: any[] | undefined) => {
   if (!Array.isArray(body)) return '';
-  const block = body.find((slice) => slice?._type === 'block' && Array.isArray(slice.children));
-  if (!block) return '';
-  return block.children.map((child: any) => child?.text ?? '').join(' ');
+  return body
+    .map((slice) => {
+      if (slice?._type === 'block' && Array.isArray(slice.children)) {
+        return slice.children.map((child: any) => child?.text ?? '').join('');
+      }
+      if (slice?._type === 'image' && typeof slice?.alt === 'string') {
+        return slice.alt;
+      }
+      return '';
+    })
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 };
 
-const baseDescription = post.excerpt && post.excerpt.trim().length > 0 ? post.excerpt : toPlainText(post.body);
+const plainBody = post.bodyPlain && post.bodyPlain.trim().length > 0 ? post.bodyPlain : bodyToPlainText(post.body);
+const baseDescription = normaliseWhitespace(plainBody ?? '');
 const metaDescription = baseDescription && baseDescription.length > 0 ? (baseDescription.length > 200 ? `${baseDescription.slice(0, 197)}…` : baseDescription) : '';
 
 const publishedDate = post.publishedAt
@@ -38,7 +51,39 @@ const publishedDate = post.publishedAt
     }).format(new Date(post.publishedAt))
   : null;
 
-const bodyHtml = post.body ? toHTML(post.body) : '';
+const escapeHtml = (input: string) =>
+  input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+const bodyHtml = post.body
+  ? toHTML(post.body, {
+      components: {
+        types: {
+          image: ({ value }) => {
+            const url = value?.url;
+            if (!url) return '';
+            const alt = value?.alt ? escapeHtml(value.alt) : '';
+            const caption = value?.caption ? `<figcaption class="mt-3 text-center text-sm text-slate-500">${escapeHtml(value.caption)}</figcaption>` : '';
+            return `<figure class="mt-8 overflow-hidden rounded-3xl"><img src="${url}" alt="${alt}" loading="lazy" class="w-full object-cover" />${caption}</figure>`;
+          }
+        },
+        marks: {
+          link: ({ children, value }) => {
+            const href = typeof value?.href === 'string' ? value.href : '#';
+            const openInNewTab = Boolean(value?.openInNewTab);
+            const target = openInNewTab ? '_blank' : '_self';
+            const rel = openInNewTab ? 'noopener noreferrer' : 'noopener';
+            const safeHref = escapeHtml(href);
+            return `<a href="${safeHref}" target="${target}" rel="${rel}">${children}</a>`;
+          }
+        }
+      }
+    })
+  : '';
 ---
 
 <BaseLayout title={`${post.title} – Repair Café Leonberg`} description={metaDescription ?? ''}>

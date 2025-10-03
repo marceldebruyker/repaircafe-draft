@@ -34,10 +34,10 @@ export const postsQuery = groq`
   *[_type == "post"] | order(publishedAt desc) {
     _id,
     title,
-    excerpt,
     publishedAt,
     "slug": slug.current,
-    "coverImage": coverImage.asset->url
+    "coverImage": coverImage.asset->url,
+    "bodyPlain": pt::text(body)
   }
 `;
 
@@ -58,11 +58,18 @@ export const postBySlugQuery = groq`
   *[_type == "post" && slug.current == $slug][0] {
     _id,
     title,
-    excerpt,
     publishedAt,
     "slug": slug.current,
     "coverImage": coverImage.asset->url,
-    body
+    "bodyPlain": pt::text(body),
+    body[] {
+      ...,
+      _type == 'image' => {
+        ...,
+        "url": asset->url,
+        "alt": coalesce(alt, asset->altText)
+      }
+    }
   }
 `;
 
@@ -72,5 +79,19 @@ export const heroGalleryQuery = groq`
       "image": image.asset->url,
       alt
     }
+  }
+`;
+
+export const teamVoicesQuery = groq`
+  *[_type == "teamVoice"] | order(order asc, _createdAt asc) {
+    _id,
+    name,
+    badge,
+    role,
+    quote,
+    description,
+    order,
+    "portrait": portrait.asset->url,
+    portraitAlt
   }
 `;

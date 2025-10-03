@@ -1,5 +1,13 @@
 import { sanityClient, isSanityConfigured } from '../lib/sanityClient';
-import { eventsQuery, upcomingEventsQuery, postsQuery, galleryQuery, postBySlugQuery, heroGalleryQuery } from '../lib/queries';
+import {
+  eventsQuery,
+  upcomingEventsQuery,
+  postsQuery,
+  galleryQuery,
+  postBySlugQuery,
+  heroGalleryQuery,
+  teamVoicesQuery
+} from '../lib/queries';
 
 export interface EventItem {
   _id: string;
@@ -17,12 +25,34 @@ export interface EventItem {
 export interface PostItem {
   _id: string;
   title: string;
-  excerpt?: string;
   publishedAt: string;
   slug?: string;
   coverImage?: string;
   body?: any[];
+  bodyPlain?: string;
 }
+
+export interface TeamVoice {
+  _id: string;
+  name: string;
+  badge?: string;
+  role?: string;
+  quote?: string;
+  description?: string;
+  order?: number;
+  portrait?: string;
+  portraitAlt?: string;
+}
+
+const parseDateValue = (value?: string) => {
+  if (!value) return 0;
+  const time = Date.parse(value);
+  if (Number.isNaN(time)) return 0;
+  return time;
+};
+
+const sortPostsByPublished = (items: PostItem[]): PostItem[] =>
+  [...items].sort((a, b) => parseDateValue(b.publishedAt) - parseDateValue(a.publishedAt));
 
 export interface GalleryItem {
   _id: string;
@@ -76,7 +106,6 @@ const fallbackPosts: PostItem[] = [
   {
     _id: 'fallback-post-1',
     title: 'Rückblick: Repair Café Auftakt 2025',
-    excerpt: 'Volle Werkbänke, gute Laune und viele gerettete Geräte – unser Saisonstart war ein voller Erfolg.',
     publishedAt: '2025-03-18',
     coverImage: 'https://images.unsplash.com/photo-1517433670267-08bbd4be8902?auto=format&fit=crop&w=900&q=80',
     slug: 'rueckblick-repair-cafe-auftakt-2025',
@@ -88,12 +117,12 @@ const fallbackPosts: PostItem[] = [
           { _type: 'span', text: 'Unser Auftakt 2025 war ein voller Erfolg. Von Lötstation bis Nähwerkstatt – hier teilen wir die Highlights.' }
         ]
       }
-    ]
+    ],
+    bodyPlain: 'Unser Auftakt 2025 war ein voller Erfolg. Von Lötstation bis Nähwerkstatt – hier teilen wir die Highlights.'
   },
   {
     _id: 'fallback-post-2',
     title: 'Neuer Schwerpunkt: Textil-Reparaturen im Fokus',
-    excerpt: 'Unser Näh-Team wächst und bietet jetzt spezielle Slots für Kleidung, Taschen und Zelte an.',
     publishedAt: '2025-04-22',
     coverImage: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80',
     slug: 'textil-reparaturen-im-fokus',
@@ -105,12 +134,12 @@ const fallbackPosts: PostItem[] = [
           { _type: 'span', text: 'Unser Textil-Team hat neue Nähmaschinen, Stoffe und Know-how. Erfahren Sie, was Sie zum nächsten Repair Café mitbringen können.' }
         ]
       }
-    ]
+    ],
+    bodyPlain: 'Unser Textil-Team hat neue Nähmaschinen, Stoffe und Know-how. Erfahren Sie, was Sie zum nächsten Repair Café mitbringen können.'
   },
   {
     _id: 'fallback-post-3',
     title: 'Workshop: Reparieren lernen in fünf Schritten',
-    excerpt: 'Nachhaltig leben? Wir zeigen Ihnen, wie Sie Alltagsgeräte selbst reparieren können – mit Praxisübungen.',
     publishedAt: '2025-05-30',
     coverImage: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80',
     slug: 'workshop-reparieren-lernen',
@@ -122,7 +151,8 @@ const fallbackPosts: PostItem[] = [
           { _type: 'span', text: 'In fünf Schritten durchs Reparieren: In unserem Workshop zeigen wir, wie Sie Fehler finden, Ersatzteile auswählen und sicher reparieren.' }
         ]
       }
-    ]
+    ],
+    bodyPlain: 'In fünf Schritten durchs Reparieren: In unserem Workshop zeigen wir, wie Sie Fehler finden, Ersatzteile auswählen und sicher reparieren.'
   }
 ];
 
@@ -169,6 +199,36 @@ const fallbackGallery: GalleryItem[] = [
   }
 ];
 
+const fallbackTeamVoices: TeamVoice[] = [
+  {
+    _id: 'fallback-voice-1',
+    name: 'Alexander',
+    badge: 'Elektrotechnik',
+    role: 'Elektrotechniker & Ehrenamtlicher',
+    quote:
+      'Ich liebe es, wenn ein scheinbar verlorenes Gerät plötzlich wieder läuft. Im Repair Café kann ich mein Wissen teilen und gleichzeitig neue Tricks lernen – das motiviert mich jedes Mal aufs Neue.',
+    description: 'Alexander engagiert sich seit 2023 im Elektronik-Team und unterstützt besonders bei kniffligen Fehlersuchen.'
+  },
+  {
+    _id: 'fallback-voice-2',
+    name: 'Sabine',
+    badge: 'Textil & Nähen',
+    role: 'Textilcoach & Gastgeberin',
+    quote:
+      'Für mich ist das Repair Café ein Ort, an dem aus Stoffresten neue Lieblingsstücke werden. Wir zeigen, dass Reparieren kreativ und unkompliziert sein kann.',
+    description: 'Sabine betreut die Nähstation und kümmert sich um die herzliche Begrüßung der Gäste.'
+  },
+  {
+    _id: 'fallback-voice-3',
+    name: 'Jens',
+    badge: 'Fahrrad-Werkstatt',
+    role: 'Fahrradschrauber & Tüftler',
+    quote:
+      'Jedes reparierte Rad bedeutet mehr Mobilität im Alltag. Gemeinsam zu schrauben macht Spaß und schafft Bewusstsein für nachhaltige Fortbewegung.',
+    description: 'Jens sorgt dafür, dass Bremsen greifen, Schaltungen schalten und Tipps zum Selbermachen mitgegeben werden.'
+  }
+];
+
 export async function getUpcomingEvents(limit?: number): Promise<EventItem[]> {
   if (!isSanityConfigured || !sanityClient) {
     return typeof limit === 'number' ? fallbackEvents.slice(0, limit) : fallbackEvents;
@@ -184,10 +244,12 @@ export async function getAllEvents(): Promise<EventItem[]> {
 
 export async function getPosts(limit?: number): Promise<PostItem[]> {
   if (!isSanityConfigured || !sanityClient) {
-    return typeof limit === 'number' ? fallbackPosts.slice(0, limit) : fallbackPosts;
+    const sortedFallback = sortPostsByPublished(fallbackPosts);
+    return typeof limit === 'number' ? sortedFallback.slice(0, limit) : sortedFallback;
   }
   const data = await sanityClient.fetch<PostItem[]>(postsQuery);
-  return typeof limit === 'number' ? data.slice(0, limit) : data;
+  const sortedData = sortPostsByPublished(data ?? []);
+  return typeof limit === 'number' ? sortedData.slice(0, limit) : sortedData;
 }
 
 export async function getGalleryImages(): Promise<GalleryItem[]> {
@@ -202,6 +264,13 @@ export async function getPostBySlug(slug: string): Promise<PostItem | null> {
   }
   const post = await sanityClient.fetch<PostItem>(postBySlugQuery, { slug });
   return post ?? null;
+}
+
+export async function getTeamVoices(): Promise<TeamVoice[]> {
+  if (!isSanityConfigured || !sanityClient) return fallbackTeamVoices;
+  const data = await sanityClient.fetch<TeamVoice[] | null>(teamVoicesQuery);
+  if (!data || data.length === 0) return fallbackTeamVoices;
+  return data;
 }
 
 export interface HeroSlide {

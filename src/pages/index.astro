@@ -39,17 +39,38 @@ const ensureUpcomingEvent = (...collections: Array<typeof upcomingEvents>) => {
 };
 
 const nextEvent = ensureUpcomingEvent(upcomingEvents, allEvents);
-const toPlainText = (body: any[] | undefined) => {
+const normaliseWhitespace = (value: string) => value.replace(/\s+/g, ' ').trim();
+
+const bodyToPlainText = (body: any[] | undefined) => {
   if (!Array.isArray(body)) return '';
-  const block = body.find((slice) => slice?._type === 'block' && Array.isArray(slice.children));
-  if (!block) return '';
-  return block.children.map((child: any) => child?.text ?? '').join(' ');
+  return body
+    .map((slice) => {
+      if (slice?._type === 'block' && Array.isArray(slice.children)) {
+        return slice.children.map((child: any) => child?.text ?? '').join('');
+      }
+      if (slice?._type === 'image' && typeof slice?.alt === 'string') {
+        return slice.alt;
+      }
+      return '';
+    })
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
+const createPreview = (text: string, limit = 200) => {
+  const base = normaliseWhitespace(text);
+  if (!base) return '';
+  if (base.length <= limit) return base;
+  const clipped = base.slice(0, limit);
+  const lastSpace = clipped.lastIndexOf(' ');
+  const safeClip = lastSpace > 0 ? clipped.slice(0, lastSpace) : clipped;
+  return `${safeClip.trim()}…`;
 };
 
 const posts = latestPosts.map((post) => {
-  const base = post.excerpt && post.excerpt.trim().length > 0 ? post.excerpt : toPlainText(post.body);
-  const preview = base && base.length > 0 ? (base.length > 200 ? `${base.slice(0, 197)}…` : base) : '';
-  return { ...post, preview };
+  const plain = post.bodyPlain && post.bodyPlain.trim().length > 0 ? post.bodyPlain : bodyToPlainText(post.body);
+  return { ...post, preview: createPreview(plain ?? '') };
 });
 
 const repairCategories = [
@@ -251,13 +272,13 @@ const testimonials = [
     <div class="container">
       <div class="mx-auto max-w-3xl text-center">
         <h2 class="font-display text-3xl font-bold text-slate-900 dark:text-white md:text-4xl">So funktioniert’s</h2>
-        <p class="mt-3 text-slate-700 dark:text-slate-300">Wir reparieren gemeinsam – du bist Teil der Lösung.</p>
+        <p class="mt-3 text-slate-700 dark:text-slate-300">Wir reparieren gemeinsam – Sie sind Teil der Lösung.</p>
       </div>
       <div class="mt-10 grid gap-5 md:grid-cols-4">
         {[
-          { step: '1', title: 'Vorbeikommen', desc: 'Anmeldung ist meist nicht nötig. Bring dein Gerät und ggf. Zubehör mit.' },
+          { step: '1', title: 'Vorbeikommen', desc: 'Anmeldung ist meist nicht nötig. Bringen Sie Ihr Gerät und ggf. Zubehör mit.' },
           { step: '2', title: 'Check-in', desc: 'Kurz beschreiben, was kaputt ist. Wir finden passende Helfer:innen.' },
-          { step: '3', title: 'Gemeinsam reparieren', desc: 'Wir zeigen dir Tricks und gehen Schritt für Schritt vor.' },
+          { step: '3', title: 'Gemeinsam reparieren', desc: 'Wir zeigen Ihnen Tricks und gehen Schritt für Schritt vor.' },
           { step: '4', title: 'Teilen & Kaffee', desc: 'Erfolg feiern, Erfahrungen teilen – gerne auch bei Kuchen.' },
         ].map((s) => (
           <div class="glass rounded-2xl p-6">
@@ -315,22 +336,29 @@ const testimonials = [
             Eindrücke aus dem Repair Café
           </h2>
           <p class="mt-2 text-slate-700 dark:text-slate-300">
-            Swipe dich durch Momente vom letzten Repair Café – Werkbänke, Workshops und Community in Aktion.
+            Wischen Sie durch Momente vom letzten Repair Café – Werkbänke, Workshops und Community in Aktion.
           </p>
         </div>
-        <a href="/impressionen" class="inline-flex items-center gap-2 self-start rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50">
+        <a href="/galerie" class="inline-flex items-center gap-2 self-start rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50">
           Mehr Impressionen ansehen
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
         </a>
       </div>
 
       <div class="relative mt-8">
-        <div class="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-slate-100 to-transparent dark:from-slate-950"></div>
-        <div class="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-slate-100 to-transparent dark:from-slate-950"></div>
         <div class="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-4 md:px-6 lg:px-8">
           {highlightGallery.map((item) => (
-            <figure class="snap-center shrink-0 grow-0 basis-3/4 sm:basis-1/2 lg:basis-1/4">
-              <div class="group relative aspect-[3/4] overflow-hidden rounded-[2.25rem] bg-slate-200 shadow-lg shadow-slate-900/10">
+            <figure
+              class="front-gallery-item snap-center shrink-0 grow-0 basis-3/4 cursor-pointer outline-none transition focus:-translate-y-1 focus:shadow-lg sm:basis-1/2 lg:basis-1/4"
+              data-image={item.image}
+              data-title={item.title ?? ''}
+              data-description={item.description ?? ''}
+              data-alt={item.alt ?? item.title ?? ''}
+              tabindex="0"
+              role="button"
+              aria-label={`Bild vergrößern: ${item.title ?? 'Impression'}`}
+            >
+              <div class="group relative aspect-[3/4] overflow-hidden rounded-[2.25rem] bg-slate-200 shadow-lg shadow-slate-900/10 transition duration-500">
                 <img
                   src={item.image}
                   alt={item.alt}
@@ -354,13 +382,46 @@ const testimonials = [
 
   <CTA />
 
+  <section class="mt-24">
+    <div class="container">
+      <div class="grid gap-6 md:grid-cols-2">
+        <div class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-900/5 dark:bg-slate-900/60">
+          <h2 class="font-display text-2xl font-semibold text-slate-900 dark:text-white">Mitmachen</h2>
+          <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
+            Sie möchten selbst reparieren, Gäste empfangen oder im Hintergrund unterstützen? Auf unserer Mitmachen-Seite finden Sie alle Infos zum Einstieg ins Team.
+          </p>
+          <a
+            href="/mitmachen"
+            class="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:bg-brand-700"
+          >
+            Engagement entdecken
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+          </a>
+        </div>
+        <div class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-900/5 dark:bg-slate-900/60">
+          <h2 class="font-display text-2xl font-semibold text-slate-900 dark:text-white">Partner-Netzwerk</h2>
+          <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
+            Reparieren funktioniert am besten gemeinsam. In unserer Übersicht finden Sie Repair Cafés der Umgebung – ideal für Austausch, Termine in Nachbarorten oder gemeinsame Aktionen.
+          </p>
+          <a
+            href="/umgebung"
+            class="mt-5 inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+          >
+            Netzwerk ansehen
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="kontakt" class="mt-24">
     <div class="container">
       <div class="glass rounded-3xl p-8 md:p-12">
         <div class="grid gap-6 md:grid-cols-2">
           <div>
             <h2 class="font-display text-2xl font-bold text-slate-900 dark:text-white">Kontakt</h2>
-            <p class="mt-3 text-slate-700 dark:text-slate-300">Fragen, Ideen oder Kooperationswunsch? Schreib uns gern.</p>
+            <p class="mt-3 text-slate-700 dark:text-slate-300">Fragen, Ideen oder Kooperationswunsch? Schreiben Sie uns gern.</p>
             <div class="mt-6 space-y-2 text-sm">
               <div>E-Mail: <a class="text-brand-700 hover:underline dark:text-brand-300" href="mailto:kontakt@repaircafe-leonberg.de">kontakt@repaircafe-leonberg.de</a></div>
               <div>Instagram: <a class="text-brand-700 hover:underline dark:text-brand-300" href="#">@repaircafe.leonberg</a> (optional)</div>
@@ -379,4 +440,146 @@ const testimonials = [
   </section>
 
   <Footer />
+
+  <div
+    id="front-gallery-lightbox"
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/80 p-6 backdrop-blur transition duration-300 opacity-0 pointer-events-none"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="front-lightbox-title"
+  >
+    <button
+      id="front-gallery-lightbox-close"
+      type="button"
+      class="absolute right-6 top-6 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-slate-800 shadow-lg shadow-slate-900/30 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white"
+      aria-label="Galerie schließen"
+    >
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M6 18L18 6" /></svg>
+    </button>
+    <div class="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-[2.25rem] border border-white/10 bg-gradient-to-b from-slate-900/90 via-slate-900/80 to-slate-950/95 shadow-2xl shadow-slate-950/60">
+      <div class="relative">
+        <div class="flex items-center justify-center bg-slate-900">
+          <img id="front-lightbox-image" src="" alt="" class="max-h-[70vh] w-full scale-95 object-contain opacity-0 transition duration-500 ease-out" />
+        </div>
+        <button
+          id="front-gallery-lightbox-prev"
+          type="button"
+          class="absolute left-4 top-1/2 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-slate-800 shadow-lg shadow-slate-900/30 backdrop-blur-sm transition hover:-translate-y-[calc(50%+4px)] hover:bg-white"
+          aria-label="Vorheriges Bild"
+        >
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6" /></svg>
+        </button>
+        <button
+          id="front-gallery-lightbox-next"
+          type="button"
+          class="absolute right-4 top-1/2 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-slate-800 shadow-lg shadow-slate-900/30 backdrop-blur-sm transition hover:-translate-y-[calc(50%+4px)] hover:bg-white"
+          aria-label="Nächstes Bild"
+        >
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" /></svg>
+        </button>
+        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/95 to-slate-900/10 px-6 py-6 text-center text-white backdrop-blur">
+          <h3 id="front-lightbox-title" class="font-display text-lg font-semibold tracking-tight">&nbsp;</h3>
+          <p id="front-lightbox-description" class="mt-2 text-sm text-slate-200/80">&nbsp;</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const frontItems = Array.from(document.querySelectorAll<HTMLElement>('.front-gallery-item'));
+      const lightbox = document.getElementById('front-gallery-lightbox');
+      const lightboxImage = document.getElementById('front-lightbox-image') as HTMLImageElement | null;
+      const lightboxTitle = document.getElementById('front-lightbox-title');
+      const lightboxDescription = document.getElementById('front-lightbox-description');
+      const lightboxClose = document.getElementById('front-gallery-lightbox-close');
+      const lightboxPrev = document.getElementById('front-gallery-lightbox-prev');
+      const lightboxNext = document.getElementById('front-gallery-lightbox-next');
+      let currentIndex = -1;
+
+      function showItem(index) {
+        if (!lightboxImage || !lightboxTitle || !lightboxDescription) return;
+        const item = frontItems[index];
+        if (!item) return;
+        const imageSrc = item.dataset.image ?? '';
+        if (!imageSrc) return;
+        lightboxImage.src = imageSrc;
+        lightboxImage.alt = item.dataset.alt ?? '';
+        const title = item.dataset.title?.trim();
+        const description = item.dataset.description?.trim();
+        lightboxTitle.textContent = title && title.length ? title : 'Impression aus dem Repair Café';
+        lightboxDescription.textContent = description && description.length ? description : 'Gemeinsam reparieren macht den Unterschied.';
+        requestAnimationFrame(() => {
+          lightboxImage.classList.remove('scale-95', 'opacity-0');
+          lightboxImage.classList.add('scale-100', 'opacity-100');
+        });
+      }
+
+      function openLightbox(index) {
+        if (!lightbox || !lightboxImage) return;
+        if (!frontItems.length) return;
+        currentIndex = index;
+        lightboxImage.classList.remove('scale-100', 'opacity-100');
+        lightboxImage.classList.add('scale-95', 'opacity-0');
+        lightbox.classList.remove('pointer-events-none', 'opacity-0');
+        lightbox.classList.add('opacity-100');
+        showItem(currentIndex);
+        document.body.classList.add('overflow-hidden');
+      }
+
+      function closeLightbox() {
+        if (!lightbox || !lightboxImage) return;
+        lightbox.classList.add('pointer-events-none');
+        lightbox.classList.remove('opacity-100');
+        lightbox.classList.add('opacity-0');
+        lightboxImage.classList.remove('scale-100', 'opacity-100');
+        lightboxImage.classList.add('scale-95', 'opacity-0');
+        lightboxImage.src = '';
+        document.body.classList.remove('overflow-hidden');
+        currentIndex = -1;
+      }
+
+      function goTo(step) {
+        if (!frontItems.length) return;
+        if (currentIndex === -1) return;
+        if (!lightboxImage) return;
+        const total = frontItems.length;
+        currentIndex = (currentIndex + step + total) % total;
+        lightboxImage.classList.remove('scale-100', 'opacity-100');
+        lightboxImage.classList.add('scale-95', 'opacity-0');
+        showItem(currentIndex);
+      }
+
+      frontItems.forEach((item, index) => {
+        item.addEventListener('click', () => openLightbox(index));
+        item.addEventListener('keypress', (event) => {
+          if (event.key === 'Enter') {
+            openLightbox(index);
+          }
+        });
+      });
+
+      lightboxClose?.addEventListener('click', closeLightbox);
+      lightbox?.addEventListener('click', (event) => {
+        if (event.target === lightbox) {
+          closeLightbox();
+        }
+      });
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeLightbox();
+        }
+        if (event.key === 'ArrowLeft' && currentIndex !== -1) {
+          event.preventDefault();
+          goTo(-1);
+        }
+        if (event.key === 'ArrowRight' && currentIndex !== -1) {
+          event.preventDefault();
+          goTo(1);
+        }
+      });
+      lightboxPrev?.addEventListener('click', () => goTo(-1));
+      lightboxNext?.addEventListener('click', () => goTo(1));
+    });
+  </script>
 </BaseLayout>

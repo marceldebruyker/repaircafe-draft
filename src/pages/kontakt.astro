@@ -1,0 +1,224 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import CTA from "../components/CTA.astro";
+
+const pageTitle = 'Kontakt – Repair Café Leonberg';
+const pageDescription = 'Kontaktiere das Repair Café Leonberg bei Fragen, Anmerkungen oder für Kooperationen.';
+const contactEmail = 'kontakt@repaircafe-leonberg.de';
+const securityCode = 'repair25';
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <Header />
+
+  <main class="bg-slate-100 py-12 md:py-16">
+    <section>
+      <div class="container">
+        <div class="mx-auto max-w-3xl text-center">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 shadow-sm">
+            Kontaktformular
+          </span>
+          <h1 class="mt-5 font-display text-4xl font-extrabold text-slate-900 md:text-5xl">
+            Wir freuen uns auf Ihre Nachricht
+          </h1>
+          <p class="mt-3 text-base text-slate-600">
+            Hier können Sie Anmerkungen hinterlassen, Fragen stellen oder Ihr Engagement anbieten. Wir melden uns so schnell wie möglich zurück.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-12">
+      <div class="container">
+        <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+          <div class="glass rounded-3xl p-8 md:p-10">
+            <h2 class="font-display text-2xl font-semibold text-slate-900">Kontaktformular</h2>
+            <p class="mt-3 text-sm text-slate-600">
+              Füllen Sie alle Pflichtfelder aus (<span class="text-red-500">*</span>) und wir setzen uns mit Ihnen in Verbindung.
+            </p>
+            <form
+              id="contact-form"
+              class="mt-8 space-y-6"
+              autocomplete="off"
+              data-security-code={securityCode}
+              data-contact-email={contactEmail}
+            >
+              <div class="grid gap-6 md:grid-cols-2">
+                <div>
+                  <label for="contact-name" class="block text-sm font-medium text-slate-700">Name<span class="text-red-500">*</span></label>
+                  <input
+                    id="contact-name"
+                    name="name"
+                    type="text"
+                    required
+                    class="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
+                <div>
+                  <label for="contact-email" class="block text-sm font-medium text-slate-700">Mail<span class="text-red-500">*</span></label>
+                  <input
+                    id="contact-email"
+                    name="email"
+                    type="email"
+                    required
+                    class="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
+              </div>
+              <div class="grid gap-6 md:grid-cols-[1fr_auto]">
+                <div>
+                  <label for="contact-security" class="block text-sm font-medium text-slate-700">Security Code<span class="text-red-500">*</span></label>
+                  <input
+                    id="contact-security"
+                    name="security"
+                    type="text"
+                    required
+                    placeholder={`Bitte "${securityCode}" eingeben`}
+                    class="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
+                <div class="flex items-end">
+                  <span class="rounded-full bg-slate-200 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600">
+                    Code: {securityCode}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <label for="contact-message" class="block text-sm font-medium text-slate-700">Nachricht / Anfrage<span class="text-red-500">*</span></label>
+                <textarea
+                  id="contact-message"
+                  name="message"
+                  rows={6}
+                  required
+                  class="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                ></textarea>
+              </div>
+              <div class="flex items-center gap-3">
+                <input
+                  id="contact-copy"
+                  name="copy"
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+                />
+                <label for="contact-copy" class="text-sm text-slate-700">Bitte eine Kopie an mich</label>
+              </div>
+              <div class="flex items-center gap-4">
+                <button
+                  type="submit"
+                  class="inline-flex items-center rounded-full bg-[#DD714D] px-6 py-3 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:bg-[#c35a39] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  Nachricht senden
+                </button>
+                <p id="contact-status" class="text-sm text-slate-500"></p>
+              </div>
+            </form>
+          </div>
+
+          <div class="space-y-6">
+            <div class="rounded-3xl bg-white p-8 shadow-xl shadow-slate-900/5">
+              <h3 class="font-display text-xl font-semibold text-slate-900">Direkter Kontakt</h3>
+              <p class="mt-3 text-sm text-slate-600">
+                Sie erreichen das Orga-Team auch direkt per E-Mail. Auf Social Media halten wir Sie zudem über Termine auf dem Laufenden.
+              </p>
+              <div class="mt-6 space-y-3 text-sm">
+                <div>
+                  <span class="font-semibold text-slate-900">E-Mail:</span>
+                  <a class="ml-2 text-brand-700 hover:underline" href={`mailto:${contactEmail}`}>{contactEmail}</a>
+                </div>
+                <div>
+                  <span class="font-semibold text-slate-900">Instagram:</span>
+                  <a class="ml-2 text-brand-700 hover:underline" href="https://www.instagram.com/repaircafe.leonberg" target="_blank" rel="noopener">@repaircafe.leonberg</a>
+                </div>
+              </div>
+            </div>
+            <div class="rounded-3xl bg-white p-8 shadow-xl shadow-slate-900/5">
+              <h3 class="font-display text-xl font-semibold text-slate-900">Besuch uns vor Ort</h3>
+              <p class="mt-3 text-sm text-slate-600">
+                Unsere Veranstaltungen finden an wechselnden Orten in Leonberg statt. Schauen Sie in den Terminen nach oder schreiben Sie uns für Details.
+              </p>
+              <a
+                class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:underline"
+                href="https://maps.google.com"
+                target="_blank"
+                rel="noopener"
+              >
+                Auf Karte ansehen
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <CTA />
+  <Footer />
+
+  <script>
+    const form = document.getElementById('contact-form');
+    const SECURITY_CODE = form?.dataset.securityCode ?? '';
+    const CONTACT_EMAIL = form?.dataset.contactEmail ?? '';
+    const status = document.getElementById('contact-status');
+
+    form?.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const getTextValue = (id) => {
+        const element = document.getElementById(id);
+        if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+          return element.value.trim();
+        }
+        return '';
+      };
+
+      const getCheckboxValue = (id) => {
+        const element = document.getElementById(id);
+        return element instanceof HTMLInputElement ? element.checked : false;
+      };
+
+      const name = getTextValue('contact-name');
+      const email = getTextValue('contact-email');
+      const security = getTextValue('contact-security');
+      const message = getTextValue('contact-message');
+      const copy = getCheckboxValue('contact-copy');
+
+      if (!name || !email || !message) {
+        if (status) {
+          status.textContent = 'Bitte füllen Sie alle Pflichtfelder aus.';
+          status.className = 'text-sm text-red-600';
+        }
+        return;
+      }
+
+      if (security.toLowerCase() !== SECURITY_CODE.toLowerCase()) {
+        if (status) {
+          status.textContent = 'Der Security Code ist nicht korrekt.';
+          status.className = 'text-sm text-red-600';
+        }
+        return;
+      }
+
+      const mailBody = [
+        `Name: ${name}`,
+        `Mail: ${email}`,
+        `Kopie gewünscht: ${copy ? 'Ja' : 'Nein'}`,
+        '',
+        'Nachricht:',
+        message
+      ].join('\n');
+
+      const subject = encodeURIComponent('Kontaktanfrage über repaircafe-leonberg.de');
+      const body = encodeURIComponent(mailBody);
+      const mailtoLink = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+
+      if (status) {
+        status.textContent = 'Ihr Mailprogramm öffnet sich – bitte prüfen und absenden.';
+        status.className = 'text-sm text-emerald-600';
+      }
+
+      window.location.href = mailtoLink;
+    });
+  </script>
+</BaseLayout>

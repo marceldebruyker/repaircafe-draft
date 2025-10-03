@@ -1,3 +1,11 @@
+@font-face {
+  font-family: 'Curlz MT';
+  src: url('/fonts/curlzmt.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -19,4 +27,13 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+}
+
+body.calendar-modal-open {
+  overflow: hidden;
+}
+
+body.calendar-modal-open > :not(#calendar-modal-root) {
+  filter: blur(4px);
+  transition: filter 150ms ease;
 }
