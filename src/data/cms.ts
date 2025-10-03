@@ -5,10 +5,12 @@ export interface EventItem {
   _id: string;
   title: string;
   date: string;
-  time?: string;
+  startTime?: string;
+  endTime?: string;
   location?: string;
-  address?: string;
-  signupUrl?: string;
+  streetAddress?: string;
+  postalCode?: string;
+  city?: string;
   slug?: string;
 }
 
@@ -26,7 +28,8 @@ export interface GalleryItem {
   _id: string;
   title?: string;
   description?: string;
-  category: 'repair' | 'workshop' | 'community';
+  category?: string;
+  categories?: string[];
   layout?: 'standard' | 'wide' | 'tall';
   image?: string;
   alt?: string;
@@ -38,22 +41,34 @@ const fallbackEvents: EventItem[] = [
     _id: 'fallback-event-1',
     title: 'Tag der offenen Tür',
     date: '2025-09-27',
-    time: '10:00–14:00',
-    location: 'VHS-Gebäude Leonberg'
+    startTime: '10:00',
+    endTime: '14:00',
+    location: 'VHS-Gebäude Leonberg',
+    streetAddress: 'Wilhelmstraße 32',
+    postalCode: '71229',
+    city: 'Leonberg'
   },
   {
     _id: 'fallback-event-2',
     title: 'Repair Café & Näh-Workshop',
     date: '2025-11-08',
-    time: '14:00–17:00',
-    location: 'Leonberg (Ort wird noch bekannt gegeben)'
+    startTime: '14:00',
+    endTime: '17:00',
+    location: 'Bürgerzentrum Stadtmitte',
+    streetAddress: 'Neuköllner Straße 5',
+    postalCode: '71229',
+    city: 'Leonberg'
   },
   {
     _id: 'fallback-event-3',
     title: 'Vorweihnachtliches Repair Café',
     date: '2025-12-13',
-    time: '14:00–17:00',
-    location: 'Leonberg (Ort wird noch bekannt gegeben)'
+    startTime: '14:00',
+    endTime: '17:00',
+    location: 'Gemeindehaus Eltingen',
+    streetAddress: 'Kirchplatz 3',
+    postalCode: '71229',
+    city: 'Leonberg'
   }
 ];
 
@@ -87,7 +102,7 @@ const fallbackPosts: PostItem[] = [
         _type: 'block',
         style: 'normal',
         children: [
-          { _type: 'span', text: 'Unser Textil-Team hat neue Nähmaschinen, Stoffe und Know-how. Erfahre, was du zum nächsten Repair Café mitbringen kannst.' }
+          { _type: 'span', text: 'Unser Textil-Team hat neue Nähmaschinen, Stoffe und Know-how. Erfahren Sie, was Sie zum nächsten Repair Café mitbringen können.' }
         ]
       }
     ]
@@ -95,7 +110,7 @@ const fallbackPosts: PostItem[] = [
   {
     _id: 'fallback-post-3',
     title: 'Workshop: Reparieren lernen in fünf Schritten',
-    excerpt: 'Nachhaltig leben? Wir zeigen dir, wie du Alltagsgeräte selbst reparieren kannst – mit Praxisübungen.',
+    excerpt: 'Nachhaltig leben? Wir zeigen Ihnen, wie Sie Alltagsgeräte selbst reparieren können – mit Praxisübungen.',
     publishedAt: '2025-05-30',
     coverImage: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80',
     slug: 'workshop-reparieren-lernen',
@@ -104,7 +119,7 @@ const fallbackPosts: PostItem[] = [
         _type: 'block',
         style: 'normal',
         children: [
-          { _type: 'span', text: 'In fünf Schritten durchs Reparieren: In unserem Workshop zeigen wir, wie du Fehler findest, Ersatzteile auswählst und sicher reparierst.' }
+          { _type: 'span', text: 'In fünf Schritten durchs Reparieren: In unserem Workshop zeigen wir, wie Sie Fehler finden, Ersatzteile auswählen und sicher reparieren.' }
         ]
       }
     ]
@@ -116,7 +131,7 @@ const fallbackGallery: GalleryItem[] = [
     _id: 'fallback-gallery-1',
     title: 'Fehlerdiagnose',
     description: 'Feine Lötarbeiten und Multimeter-Messungen an Kleingeräten.',
-    category: 'repair',
+    categories: ['elektronik-haushalt', 'lampen-licht'],
     layout: 'wide',
     order: 1,
     image: 'https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&w=1200&q=80',
@@ -126,7 +141,7 @@ const fallbackGallery: GalleryItem[] = [
     _id: 'fallback-gallery-2',
     title: 'Textil-Station',
     description: 'Reißverschlüsse wechseln und Lieblingsstücke retten.',
-    category: 'workshop',
+    categories: ['textil-naehen'],
     layout: 'standard',
     order: 2,
     image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80',
@@ -136,7 +151,7 @@ const fallbackGallery: GalleryItem[] = [
     _id: 'fallback-gallery-3',
     title: 'Bike-Werkstatt',
     description: 'Bremsen nachstellen und Schaltungen justieren.',
-    category: 'repair',
+    categories: ['fahrrad'],
     layout: 'tall',
     order: 3,
     image: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=900&q=80',
@@ -146,7 +161,7 @@ const fallbackGallery: GalleryItem[] = [
     _id: 'fallback-gallery-4',
     title: 'Pause & Austausch',
     description: 'Neue Kontakte knüpfen bei Kaffee und Kuchen.',
-    category: 'community',
+    categories: ['kaffee-community'],
     layout: 'tall',
     order: 4,
     image: 'https://images.unsplash.com/photo-1449247613801-ab06418e2861?auto=format&fit=crop&w=900&q=80',

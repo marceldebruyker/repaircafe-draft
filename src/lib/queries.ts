@@ -5,10 +5,12 @@ export const eventsQuery = groq`
     _id,
     title,
     date,
-    time,
+    startTime,
+    endTime,
     location,
-    address,
-    signupUrl,
+    streetAddress,
+    postalCode,
+    city,
     "slug": slug.current
   }
 `;
@@ -18,10 +20,12 @@ export const upcomingEventsQuery = groq`
     _id,
     title,
     date,
-    time,
+    startTime,
+    endTime,
     location,
-    address,
-    signupUrl,
+    streetAddress,
+    postalCode,
+    city,
     "slug": slug.current
   }
 `;

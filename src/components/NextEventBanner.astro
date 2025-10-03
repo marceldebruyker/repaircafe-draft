@@ -11,6 +11,19 @@ const { event, ctaHref = "/termine" } = Astro.props as Props;
 const hasEvent = Boolean(event);
 let formattedDate = "";
 let locationLine = "";
+let timeLabel = "";
+
+const pad = (num: number) => String(num).padStart(2, "0");
+const parseTime = (value?: string) => {
+  if (!value) return null;
+  const match = value.trim().match(/^([01]?\d|2[0-3]):([0-5]\d)$/);
+  if (!match) return null;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  return Number.isNaN(hours) || Number.isNaN(minutes) ? null : { hours, minutes };
+};
+
+const formatTime = (time: { hours: number; minutes: number }) => `${pad(time.hours)}:${pad(time.minutes)}`;
 
 if (event) {
   const date = new Date(`${event.date}T12:00:00`);
@@ -21,14 +34,31 @@ if (event) {
     year: "numeric"
   }).format(date);
 
-  locationLine = [event.title, event.location].filter(Boolean).join(" · ");
+  const start = parseTime(event.startTime);
+  const end = parseTime(event.endTime);
+
+  if (start && end) {
+    timeLabel = `${formatTime(start)} – ${formatTime(end)} Uhr`;
+  } else if (start) {
+    timeLabel = `ab ${formatTime(start)} Uhr`;
+  } else if (end) {
+    timeLabel = `bis ${formatTime(end)} Uhr`;
+  }
+
+  locationLine = [
+    event.location,
+    event.streetAddress,
+    [event.postalCode, event.city].filter(Boolean).join(" ")
+  ]
+    .filter((part) => part && part.length > 0)
+    .join(" · ");
 }
 ---
 
 {hasEvent && (
   <section class="bg-slate-100 dark:bg-slate-950">
-    <div class="container py-2 md:py-3">
-      <div class="flex flex-col gap-4 rounded-2xl bg-brand-600 px-6 py-5 text-white shadow-lg shadow-brand-900/20 md:flex-row md:items-center md:justify-between md:px-8 md:py-6">
+    <div class="container pt-2 pb-1 md:pt-3 md:pb-2">
+      <div class="flex flex-col gap-4 rounded-2xl bg-brand-600 px-6 py-5 text-white md:flex-row md:items-center md:justify-between md:px-8 md:py-6">
         <div class="flex flex-1 items-start gap-4 md:items-center">
           <div class="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-white/15 text-white">
             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -46,7 +76,7 @@ if (event) {
             </span>
             <p class="font-display text-lg font-semibold leading-snug md:text-xl">
               {formattedDate}
-              {event.time ? ` · ${event.time}` : ""}
+              {timeLabel ? ` · ${timeLabel}` : ""}
             </p>
             {locationLine && (
               <p class="text-sm text-white/80 md:text-sm">
@@ -56,14 +86,6 @@ if (event) {
           </div>
         </div>
         <div class="flex flex-none flex-col items-center gap-2 md:flex-row md:items-center md:gap-3">
-          {event.signupUrl && (
-            <a
-              href={event.signupUrl}
-              class="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-white/70 px-5 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-white/15"
-            >
-              Anmelden
-            </a>
-          )}
           <a
             href={ctaHref}
             class="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-white px-5 py-2 text-xs font-semibold uppercase tracking-wide text-brand-700 shadow-sm transition hover:bg-slate-100"
