@@ -1,4 +1,5 @@
 import { defineType, defineField, type Rule } from 'sanity';
+import { AutoSlugInput } from '../components/AutoSlugInput';
 
 const slugify = (input: string) =>
   input
@@ -34,13 +35,17 @@ export default defineType({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
-      description: 'Wird automatisch aus dem Titel erzeugt.',
+      description: 'Wird automatisch aus dem Titel erzeugt und muss nicht manuell gepflegt werden.',
       options: {
         source: 'title',
         maxLength: 96,
         slugify
       },
-      validation: (rule) => rule.required()
+      validation: (rule) => rule.required(),
+      readOnly: true,
+      components: {
+        input: AutoSlugInput
+      }
     }),
     defineField({
       name: 'date',
