@@ -1,12 +1,6 @@
 import {useEffect, useMemo} from 'react';
 import {Card, Stack, Text} from '@sanity/ui';
-import {
-  set,
-  type SlugInputProps,
-  useClient,
-  useDocumentId,
-  useFormValue
-} from 'sanity';
+import {set, type SlugInputProps, useClient, useFormValue} from 'sanity';
 
 const slugify = (input: string) =>
   input
@@ -22,10 +16,8 @@ const slugify = (input: string) =>
 const DEFAULT_API_VERSION = '2024-01-01';
 
 export function AutoSlugInput(props: SlugInputProps) {
-  const {value, onChange} = props;
+  const {value, onChange, documentId, schemaType} = props;
   const client = useClient({apiVersion: DEFAULT_API_VERSION});
-  const documentId = useDocumentId();
-  const documentType = useFormValue(['_type']) as string | undefined;
   const title = useFormValue(['title']) as string | undefined;
 
   const currentSlug = value?.current ?? '';
@@ -35,7 +27,7 @@ export function AutoSlugInput(props: SlugInputProps) {
   }, [documentId]);
 
   useEffect(() => {
-    const shouldGenerate = Boolean(title && !currentSlug && documentType && baseId);
+    const shouldGenerate = Boolean(title && !currentSlug && schemaType?.name && baseId);
     if (!shouldGenerate) return;
 
     let cancelled = false;
@@ -48,9 +40,9 @@ export function AutoSlugInput(props: SlugInputProps) {
       let suffix = 1;
 
       const isUnique = async (slugCandidate: string) => {
-        if (!documentType || !baseId) return true;
+        if (!schemaType?.name || !baseId) return true;
         const params = {
-          type: documentType,
+          type: schemaType.name,
           slug: slugCandidate,
           draftId: `drafts.${baseId}`,
           publishedId: baseId
@@ -81,7 +73,7 @@ export function AutoSlugInput(props: SlugInputProps) {
     return () => {
       cancelled = true;
     };
-  }, [title, currentSlug, documentType, baseId, client, onChange]);
+  }, [title, currentSlug, schemaType?.name, baseId, client, onChange]);
 
   return (
     <Card padding={3} radius={2} shadow={0} tone="transparent">
