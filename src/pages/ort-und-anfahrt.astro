@@ -62,7 +62,7 @@ const locationGalleryItems = normalizedGalleryItems;
           <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
             Ort &amp; Anfahrt
           </span>
-          <h1 class="mt-5 font-display text-4xl font-extrabold text-slate-900 md:text-5xl">
+          <h1 class="mt-5 heading-hero">
             Hier finden Sie uns
           </h1>
           <p class="mt-3 text-base text-slate-600">
@@ -123,23 +123,23 @@ const locationGalleryItems = normalizedGalleryItems;
 
 
         <div class="mt-12 grid gap-6 md:grid-cols-3">
-          {[
-            {
-              title: 'Zu Fuß',
-              desc: 'Von der Haltestelle Eltingen Leo-Center sind es nur 100–150 Meter zur Neuköllner Straße 5. Folgen Sie den Wegweisern zwischen Stadthalle, Volkshochschule und Leo-Center.',
-            },
-            {
-              title: 'Mit Bus & Bahn',
-              desc: 'S-Bahn S6 bis Leonberg, dann Bus 631, 632, 640, 641, 652 oder 92 zum Leo-Center (Fahrzeit 3–6 Min.). Die Linien starten direkt am Busbahnhof – 631/632 meist Steig 1, Linie 92 je nach Richtung an Steig 3 oder 5.',
-            },
-            {
-              title: 'Mit dem Auto',
-              desc: 'Parkmöglichkeiten finden Sie im Parkhaus des Leo-Centers oder an der Stadthalle (teilweise kostenpflichtig). Von dort sind es nur wenige Schritte zum Eingang.',
-            }
-          ].map((item) => (
-            <article class="rounded-3xl bg-white p-6 text-left shadow-lg shadow-slate-900/5">
-              <h2 class="font-display text-lg font-semibold text-slate-900">{item.title}</h2>
-              <p class="mt-3 text-sm text-slate-600">{item.desc}</p>
+                {[
+                  {
+                    title: 'Zu Fuß',
+                    desc: 'Von der Haltestelle Eltingen Leo-Center sind es nur 100–150 Meter zur Neuköllner Straße 5. Folgen Sie den Wegweisern zwischen Stadthalle, Volkshochschule und Leo-Center.',
+                  },
+                  {
+                    title: 'Mit Bus & Bahn',
+                    desc: 'S-Bahn S6 bis Leonberg, dann Bus 631, 632, 640, 641, 652 oder 92 zum Leo-Center (Fahrzeit 3–6 Min.). Die Linien starten direkt am Busbahnhof – 631/632 meist Steig 1, Linie 92 je nach Richtung an Steig 3 oder 5.',
+                  },
+                  {
+                    title: 'Mit dem Auto',
+                    desc: 'Parkmöglichkeiten finden Sie im Parkhaus des Leo-Centers oder an der Stadthalle (teilweise kostenpflichtig). Von dort sind es nur wenige Schritte zum Eingang.',
+                  }
+                ].map((item) => (
+                  <article class="rounded-3xl bg-white p-6 text-left shadow-lg shadow-slate-900/5">
+                    <h2 class="card-title-sm">{item.title}</h2>
+                    <p class="mt-3 body-text">{item.desc}</p>
             </article>
           ))}
         </div>
@@ -148,7 +148,7 @@ const locationGalleryItems = normalizedGalleryItems;
           <div class="mt-12">
             <div class="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h2 class="font-display text-2xl font-semibold text-slate-900">Impressionen vom Standort</h2>
+                <h2 class="heading-sub">Impressionen vom Standort</h2>
                 <p class="mt-1 text-sm text-slate-600">Ein Blick rund um das Bürgerzentrum Stadtmitte und unsere Anlaufstelle.</p>
               </div>
               <div class="flex gap-2">
@@ -206,7 +206,7 @@ const locationGalleryItems = normalizedGalleryItems;
         )}
 
         <div class="mt-12 rounded-3xl bg-white p-8 text-center shadow-lg shadow-slate-900/5">
-          <h2 class="font-display text-2xl font-semibold text-slate-900">Termine im Überblick</h2>
+          <h2 class="heading-sub">Termine im Überblick</h2>
           <p class="mt-3 text-sm text-slate-600">
             Alle Daten zu kommenden Repair Cafés finden Sie auf unserer Terminseite.
           </p>
