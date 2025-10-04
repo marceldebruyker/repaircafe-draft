@@ -38,13 +38,6 @@ export default defineType({
       validation: (rule) => rule.required()
     }),
     defineField({
-      name: 'order',
-      title: 'Reihenfolge',
-      type: 'number',
-      description: 'Niedrige Zahlen erscheinen zuerst.',
-      validation: (rule) => rule.min(0).max(999)
-    }),
-    defineField({
       name: 'portrait',
       title: 'Portraitfoto',
       type: 'image',

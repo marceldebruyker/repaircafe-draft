@@ -44,6 +44,12 @@ export default defineType({
       validation: (rule) => rule.required().min(3).max(80)
     }),
     defineField({
+      name: 'description',
+      title: 'Kurzbeschreibung',
+      type: 'text',
+      rows: 2
+    }),
+    defineField({
       name: 'image',
       title: 'Bild',
       type: 'image',
@@ -70,12 +76,6 @@ export default defineType({
       description: 'Haupt-Kategorie für Filter & Darstellung (Pflichtfeld).',
       validation: (rule) => rule.required()
     }),
-    defineField({
-      name: 'description',
-      title: 'Kurzbeschreibung',
-      type: 'text',
-      rows: 2
-    })
   ],
   preview: {
     select: {
