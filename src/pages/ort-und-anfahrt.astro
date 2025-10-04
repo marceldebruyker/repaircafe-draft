@@ -180,7 +180,7 @@ const locationGalleryItems = normalizedGalleryItems;
               >
                 {locationGalleryItems.map((item) => (
                   <figure
-                    class="relative h-64 w-[18rem] flex-shrink-0 snap-start overflow-hidden rounded-3xl bg-white shadow-lg shadow-slate-900/10"
+                    class="relative h-64 flex-shrink-0 snap-start overflow-hidden rounded-3xl bg-white shadow-lg shadow-slate-900/10 w-[85vw] sm:w-[70vw] md:w-[calc((100% - 1rem)/2)] lg:w-[calc((100% - 2rem)/3)]"
                     role="listitem"
                     tabindex="0"
                   >
@@ -228,10 +228,13 @@ const locationGalleryItems = normalizedGalleryItems;
       const prevButton = document.querySelector('[data-scroll="location-prev"]');
       const nextButton = document.querySelector('[data-scroll="location-next"]');
 
-      const scrollAmount = () => Math.max(container.clientWidth * 0.8, 240);
-
       const scrollByAmount = (direction) => {
-        container.scrollBy({ left: scrollAmount() * direction, behavior: 'smooth' });
+        const firstItem = container.querySelector('figure');
+        const itemWidth = firstItem ? firstItem.getBoundingClientRect().width : container.clientWidth;
+        const gapValue = getComputedStyle(container).columnGap || getComputedStyle(container).gap || '0';
+        const gap = Number.parseFloat(gapValue) || 0;
+
+        container.scrollBy({ left: (itemWidth + gap) * direction, behavior: 'smooth' });
       };
 
       prevButton?.addEventListener('click', () => scrollByAmount(-1));
