@@ -2,7 +2,7 @@ import { defineType, defineField } from 'sanity';
 
 export default defineType({
   name: 'heroGallery',
-  title: 'Startseiten Bilder',
+  title: 'Startseite Hero – Bilder',
   type: 'document',
   fields: [
     defineField({

@@ -2,7 +2,7 @@ import { defineField, defineType } from 'sanity';
 
 export default defineType({
   name: 'teamVoice',
-  title: 'Teamstimme',
+  title: 'Team-Stimmen & Portraits',
   type: 'document',
   fields: [
     defineField({

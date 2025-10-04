@@ -1,4 +1,6 @@
-import { defineType, defineField } from 'sanity';
+import { useEffect } from 'react';
+import { defineType, defineField, set } from 'sanity';
+import type { StringInputProps } from 'sanity';
 
 const galleryCategoryOptions = [
   { title: 'Elektronik & Haushalt', value: 'elektronik-haushalt' },
@@ -9,11 +11,7 @@ const galleryCategoryOptions = [
   { title: 'Möbel & Holz', value: 'moebel-holz' },
   { title: 'Spielzeug & Sonstiges', value: 'spielzeug-sonstiges' },
   { title: 'Kaffee & Community', value: 'kaffee-community' },
-  { title: 'Standort & Umgebung', value: 'location' },
-  // Legacy Kategorien bleiben verfügbar, bis alle Einträge migriert wurden
-  { title: 'Reparatur (alt)', value: 'repair' },
-  { title: 'Workshops (alt)', value: 'workshop' },
-  { title: 'Community (alt)', value: 'community' }
+  { title: 'Standort & Umgebung', value: 'location' }
 ];
 
 const categoryLabelMap = galleryCategoryOptions.reduce<Record<string, string>>((acc, option) => {
@@ -21,11 +19,30 @@ const categoryLabelMap = galleryCategoryOptions.reduce<Record<string, string>>((
   return acc;
 }, {});
 
+const AltTextInput = (props: StringInputProps) => {
+  const { value, renderDefault, onChange, context } = props;
+  const title = typeof context?.document?.title === 'string' ? context.document.title : '';
+
+  useEffect(() => {
+    if (!value && title) {
+      onChange?.(set(title));
+    }
+  }, [value, title, onChange]);
+
+  return renderDefault(props);
+};
+
 export default defineType({
   name: 'galleryImage',
-  title: 'Impression',
+  title: 'Bildergalerie – Bild',
   type: 'document',
   fields: [
+    defineField({
+      name: 'title',
+      title: 'Titel',
+      type: 'string',
+      validation: (rule) => rule.required().min(3).max(80)
+    }),
     defineField({
       name: 'image',
       title: 'Bild',
@@ -37,7 +54,10 @@ export default defineType({
       name: 'alt',
       title: 'Alt-Text',
       type: 'string',
-      validation: (rule) => rule.required()
+      description: 'Wird automatisch aus dem Titel übernommen und kann bei Bedarf angepasst werden.',
+      components: { input: AltTextInput },
+      initialValue: ({ document }) => (document?.title ? String(document.title) : ''),
+      validation: (rule) => rule.required().min(3)
     }),
     defineField({
       name: 'category',
@@ -51,51 +71,8 @@ export default defineType({
       validation: (rule) => rule.required()
     }),
     defineField({
-      name: 'categories',
-      title: 'Weitere Kategorien (optional)',
-      type: 'array',
-      of: [
-        defineField({
-          name: 'categoryItem',
-          type: 'string',
-          options: {
-            list: galleryCategoryOptions,
-            layout: 'tags'
-          }
-        })
-      ],
-      options: {
-        layout: 'tags'
-      },
-      description: 'Nutze diese Tags für zusätzliche Zuordnungen (z. B. Standort & Umgebung).'
-    }),
-    defineField({
-      name: 'layout',
-      title: 'Layout',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Standard', value: 'standard' },
-          { title: 'Breit', value: 'wide' },
-          { title: 'Hoch', value: 'tall' }
-        ],
-        layout: 'radio'
-      }
-    }),
-    defineField({
-      name: 'order',
-      title: 'Reihenfolge',
-      type: 'number',
-      initialValue: 0
-    }),
-    defineField({
-      name: 'title',
-      title: 'Titel',
-      type: 'string'
-    }),
-    defineField({
       name: 'description',
-      title: 'Beschreibung',
+      title: 'Kurzbeschreibung',
       type: 'text',
       rows: 2
     })
@@ -104,24 +81,15 @@ export default defineType({
     select: {
       title: 'title',
       subtitle: 'category',
-      categories: 'categories',
       media: 'image'
     },
     prepare(selection) {
-      const { title, subtitle, categories, media } = selection;
-      const categoryList = Array.isArray(categories) && categories.length
-        ? categories
-        : subtitle
-          ? [subtitle]
-          : [];
-
-      const readableSubtitle = categoryList
-        .map((value) => categoryLabelMap[value] ?? value)
-        .join(', ');
+      const { title, subtitle, media } = selection;
+      const readableSubtitle = subtitle ? categoryLabelMap[subtitle] ?? subtitle : undefined;
 
       return {
         title,
-        subtitle: readableSubtitle || undefined,
+        subtitle: readableSubtitle,
         media
       };
     }

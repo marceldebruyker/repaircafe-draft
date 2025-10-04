@@ -7,7 +7,6 @@ import CTA from "../components/CTA.astro";
 const pageTitle = 'Kontakt – Repair Café Leonberg';
 const pageDescription = 'Kontaktiere das Repair Café Leonberg bei Fragen, Anmerkungen oder für Kooperationen.';
 const contactEmail = 'kontakt@repaircafe-leonberg.de';
-const securityCode = 'repair25';
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
@@ -42,7 +41,6 @@ const securityCode = 'repair25';
               id="contact-form"
               class="mt-8 space-y-6"
               autocomplete="off"
-              data-security-code={securityCode}
               data-contact-email={contactEmail}
             >
               <div class="grid gap-6 md:grid-cols-2">
@@ -67,23 +65,9 @@ const securityCode = 'repair25';
                   />
                 </div>
               </div>
-              <div class="grid gap-6 md:grid-cols-[1fr_auto]">
-                <div>
-                  <label for="contact-security" class="block text-sm font-medium text-slate-700">Security Code<span class="text-red-500">*</span></label>
-                  <input
-                    id="contact-security"
-                    name="security"
-                    type="text"
-                    required
-                    placeholder={`Bitte "${securityCode}" eingeben`}
-                    class="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                  />
-                </div>
-                <div class="flex items-end">
-                  <span class="rounded-full bg-slate-200 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600">
-                    Code: {securityCode}
-                  </span>
-                </div>
+              <div class="hidden" aria-hidden="true">
+                <label for="contact-company">Firma (bitte frei lassen)</label>
+                <input id="contact-company" name="company" type="text" tabindex="-1" autocomplete="off" />
               </div>
               <div>
                 <label for="contact-message" class="block text-sm font-medium text-slate-700">Nachricht / Anfrage<span class="text-red-500">*</span></label>
@@ -158,9 +142,9 @@ const securityCode = 'repair25';
 
   <script>
     const form = document.getElementById('contact-form');
-    const SECURITY_CODE = form?.dataset.securityCode ?? '';
     const CONTACT_EMAIL = form?.dataset.contactEmail ?? '';
     const status = document.getElementById('contact-status');
+    const formLoadedAt = Date.now();
 
     form?.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -180,8 +164,8 @@ const securityCode = 'repair25';
 
       const name = getTextValue('contact-name');
       const email = getTextValue('contact-email');
-      const security = getTextValue('contact-security');
       const message = getTextValue('contact-message');
+      const company = getTextValue('contact-company');
       const copy = getCheckboxValue('contact-copy');
 
       if (!name || !email || !message) {
@@ -192,9 +176,18 @@ const securityCode = 'repair25';
         return;
       }
 
-      if (security.toLowerCase() !== SECURITY_CODE.toLowerCase()) {
+      if (company) {
         if (status) {
-          status.textContent = 'Der Security Code ist nicht korrekt.';
+          status.textContent = 'Die Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut oder nutzen Sie alternativ die E-Mail-Adresse.';
+          status.className = 'text-sm text-red-600';
+        }
+        return;
+      }
+
+      const timeSinceLoad = Date.now() - formLoadedAt;
+      if (timeSinceLoad < 2000) {
+        if (status) {
+          status.textContent = 'Bitte senden Sie das Formular noch einmal – ein kurzer Moment verhindert Spam.';
           status.className = 'text-sm text-red-600';
         }
         return;
