@@ -180,16 +180,18 @@ const locationGalleryItems = normalizedGalleryItems;
               >
                 {locationGalleryItems.map((item) => (
                   <figure
-                    class="relative h-64 flex-shrink-0 snap-start overflow-hidden rounded-3xl bg-white shadow-lg shadow-slate-900/10 w-[85vw] sm:w-[70vw] md:w-[calc((100% - 1rem)/2)] lg:w-[calc((100% - 2rem)/3)]"
+                    class="relative flex-shrink-0 snap-start overflow-hidden rounded-3xl bg-white shadow-lg shadow-slate-900/10 w-[85vw] sm:w-[70vw] md:w-[min(28rem,calc((100%-1rem)/2))] lg:w-[min(28rem,calc((100%-2rem)/3))]"
                     role="listitem"
                     tabindex="0"
                   >
-                    <img
-                      src={item.image}
-                      alt={item.alt ?? item.title ?? 'Foto vom Repair Café Standort'}
-                      loading="lazy"
-                      class="h-full w-full object-cover"
-                    />
+                    <div class="relative aspect-[4/3] w-full">
+                      <img
+                        src={item.image}
+                        alt={item.alt ?? item.title ?? 'Foto vom Repair Café Standort'}
+                        loading="lazy"
+                        class="absolute inset-0 h-full w-full object-cover"
+                      />
+                    </div>
                     <figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/80 via-slate-900/40 to-transparent px-4 pb-4 pt-12 text-sm text-white">
                       {item.title && <span class="font-semibold leading-tight">{item.title}</span>}
                       {item.description && (
