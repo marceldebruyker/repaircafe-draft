@@ -196,6 +196,26 @@ const fallbackGallery: GalleryItem[] = [
     order: 4,
     image: 'https://images.unsplash.com/photo-1449247613801-ab06418e2861?auto=format&fit=crop&w=900&q=80',
     alt: 'Besucher:innen trinken Kaffee bei einem Event'
+  },
+  {
+    _id: 'fallback-gallery-5',
+    title: 'Bürgerzentrum Stadtmitte',
+    description: 'Eingang zum Veranstaltungsort des Repair Cafés.',
+    categories: ['location'],
+    layout: 'standard',
+    order: 5,
+    image: 'https://images.unsplash.com/photo-1600585154340-0ef3c08c0632?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Außenansicht eines modernen Bürgerzentrums'
+  },
+  {
+    _id: 'fallback-gallery-6',
+    title: 'Weg zwischen Leo-Center und Stadthalle',
+    description: 'Beschilderung, die zum Repair Café führt.',
+    categories: ['location'],
+    layout: 'standard',
+    order: 6,
+    image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Wegweiser im Stadtzentrum von Leonberg'
   }
 ];
 

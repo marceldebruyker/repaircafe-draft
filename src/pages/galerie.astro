@@ -25,13 +25,17 @@ const categoryLabels: Record<string, string> = {
   'textil-naehen': 'Textil & Nähen',
   'moebel-holz': 'Möbel & Holz',
   'spielzeug-sonstiges': 'Spielzeug & Sonstiges',
-  'kaffee-community': 'Kaffee & Community'
+  'kaffee-community': 'Kaffee & Community',
+  location: 'Standort & Umgebung'
 };
 
 const categoryAliases: Record<string, string> = {
   repair: 'elektronik-haushalt',
   workshop: 'textil-naehen',
-  community: 'kaffee-community'
+  community: 'kaffee-community',
+  standort: 'location',
+  'standort-umgebung': 'location',
+  'ort-anfahrt': 'location'
 };
 
 const normalizeCategory = (value?: string) => {
