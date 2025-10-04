@@ -166,95 +166,63 @@ if (event.date) {
 }
 ---
 
-<article class="group relative flex h-full flex-col overflow-hidden rounded-[32px] border border-slate-200/80 bg-white/95 text-slate-900 shadow-[0_18px_45px_-28px_rgba(15,23,42,0.45)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_60px_-30px_rgba(15,23,42,0.55)] dark:border-slate-700/60 dark:bg-slate-900/90 dark:text-white">
-  <span class="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-500/8 via-transparent to-slate-100/40 dark:from-brand-400/10 dark:to-slate-900/60"></span>
-  <span class="pointer-events-none absolute -left-24 top-1/2 hidden h-48 w-48 -translate-y-1/2 rounded-full bg-brand-500/15 blur-3xl sm:block"></span>
+<article class="flex h-full flex-col gap-6 rounded-3xl border border-slate-200 bg-white/95 p-6 text-slate-900 shadow-lg shadow-slate-900/10 transition hover:-translate-y-0.5 hover:shadow-xl dark:border-slate-700/60 dark:bg-slate-900/90 dark:text-white md:p-7">
+  <header class="flex items-start gap-4">
+    <div class="flex h-18 w-18 flex-none flex-col items-center justify-center rounded-2xl bg-brand-600 text-white shadow-inner shadow-brand-900/25 md:h-20 md:w-20">
+      <span class="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/80">{badgeMonth || '--'}</span>
+      <span class="text-3xl font-black leading-none md:text-[36px]">{badgeDay || '--'}</span>
+      <span class="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/70">{badgeWeekday || ''}</span>
+    </div>
+    <div class="flex-1 space-y-2">
+      <h3 class="font-display text-xl font-semibold leading-tight md:text-[24px]">{event.title}</h3>
+      <p class="text-sm text-slate-500 dark:text-slate-300/80">{dateLabel}</p>
+    </div>
+  </header>
 
-  <div class="relative flex h-full flex-col gap-8 p-7 md:p-8">
-    <header class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-      <div class="flex flex-1 items-center gap-4">
-        <div class="flex flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-brand-500 px-5 py-4 text-white shadow-lg shadow-brand-900/35 md:px-6 md:py-5">
-          <span class="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/80 md:text-[11px]">{badgeWeekday || '---'}</span>
-          <span class="text-3xl font-black leading-none md:text-4xl">{badgeDay || '--'}</span>
-          <span class="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/70 md:text-xs">{badgeMonth || ''}</span>
-        </div>
-        <div class="space-y-2">
-          <span class="inline-flex items-center gap-2 rounded-full bg-slate-900/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-600 dark:bg-white/10 dark:text-white/70">
-            Repair Café Termin
-          </span>
-          <h3 class="font-display text-2xl font-semibold leading-tight tracking-tight text-slate-900 dark:text-white md:text-[26px]">{event.title}</h3>
-          <p class="text-sm font-medium text-slate-500 dark:text-slate-300/80">{dateLabel}</p>
-          {calendarLocation && (
-            <p class="text-xs uppercase tracking-[0.28em] text-slate-400 dark:text-slate-500">{calendarLocation}</p>
-          )}
-        </div>
-      </div>
-    </header>
-
-    <section class="grid gap-5 md:grid-cols-2">
-      <div class="rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm shadow-slate-900/5 transition group-hover:border-brand-200/70 dark:border-slate-700/60 dark:bg-slate-900/50">
-        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-brand-700 dark:text-brand-200">
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="16" height="18" x="4" y="4" rx="2"/><path d="M4 10h16"/></svg>
-          <span>Wann</span>
-        </div>
-        <p class="mt-3 text-base font-semibold text-slate-900 dark:text-white">{timeRange}</p>
-        <p class="mt-1 text-sm text-slate-500 dark:text-slate-300/80">{dateLabel}</p>
-      </div>
-
-      <div class="rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm shadow-slate-900/5 transition group-hover:border-brand-200/70 dark:border-slate-700/60 dark:bg-slate-900/50">
-        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-brand-700 dark:text-brand-200">
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 12-9 12S3 17 3 10a9 9 0 1 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span>Wo</span>
-        </div>
-        <p class="mt-3 text-base font-semibold text-slate-900 dark:text-white">{locationHeadline}</p>
-        {streetLine && <p class="mt-1 text-sm text-slate-500 dark:text-slate-300/80">{streetLine}</p>}
+  <section class="space-y-3 text-sm text-slate-600 dark:text-slate-300/80">
+    <div class="flex items-center gap-2">
+      <span class="inline-flex h-8 w-8 flex-none items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-200">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="16" height="18" x="4" y="4" rx="2"/><path d="M4 10h16"/></svg>
+      </span>
+      <p class="font-semibold text-slate-900 dark:text-white">{timeRange}</p>
+    </div>
+    <div class="flex items-start gap-2">
+      <span class="inline-flex h-8 w-8 flex-none items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-200">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 12-9 12S3 17 3 10a9 9 0 1 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      </span>
+      <div>
+        <p class="font-semibold text-slate-900 dark:text-white">{locationHeadline}</p>
+        {streetLine && <p class="text-sm text-slate-500 dark:text-slate-300/80">{streetLine}</p>}
         {cityLine && <p class="text-sm text-slate-500 dark:text-slate-300/80">{cityLine}</p>}
       </div>
+    </div>
+  </section>
 
-      <div class="rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm shadow-slate-900/5 transition group-hover:border-brand-200/70 dark:border-slate-700/60 dark:bg-slate-900/50 md:col-span-2">
-        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-brand-700 dark:text-brand-200">
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M19 12H5"/></svg>
-          <span>Gut zu wissen</span>
-        </div>
-        <ul class="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300/80">
-          <li class="flex items-start gap-2">
-            <span class="mt-1 inline-flex h-4 w-4 flex-none items-center justify-center rounded-full bg-brand-500/15 text-brand-600 dark:bg-brand-400/10 dark:text-brand-200">
-              <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>
-            </span>
-            <span>Teilnahme ohne Anmeldung – kommen Sie einfach vorbei.</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="mt-1 inline-flex h-4 w-4 flex-none items-center justify-center rounded-full bg-brand-500/15 text-brand-600 dark:bg-brand-400/10 dark:text-brand-200">
-              <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>
-            </span>
-            <span>Kostenfrei – Spenden helfen uns, Werkzeuge und Ersatzteile bereitzustellen.</span>
-          </li>
-        </ul>
-      </div>
-    </section>
+  <section class="space-y-2 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 text-sm text-slate-600 dark:border-slate-700/60 dark:bg-slate-800/70 dark:text-slate-300/80">
+    <p>• Teilnahme ohne Anmeldung – einfach vorbeikommen.</p>
+    <p>• Kostenfrei, Spenden für Material willkommen.</p>
+  </section>
 
-    <footer class="mt-auto flex flex-col gap-4 border-t border-slate-200/70 pt-6 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
-      <p class="text-xs text-slate-500 dark:text-slate-300/80">Speichern Sie den Termin oder teilen Sie ihn mit Freund:innen.</p>
-      {calendarDownload && (
-        <button
-          type="button"
-          class="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-600 to-brand-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-900/40 transition hover:-translate-y-0.5 hover:from-brand-500 hover:to-brand-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
-          data-calendar-button
-          data-calendar-title={event.title ?? 'Repair Café Leonberg Termin'}
-          data-calendar-date={formattedDate || undefined}
-          data-calendar-time={calendarTimeLabel || undefined}
-          data-calendar-location={calendarLocation || undefined}
-          data-calendar-ics={calendarDownload.icsHref}
-          data-calendar-ics-file={icsFileName}
-          data-calendar-gcal={calendarDownload.gcalHref}
-          data-calendar-outlook={calendarDownload.outlookHref}
-          aria-haspopup="dialog"
-          aria-expanded="false"
-        >
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="16" height="18" x="4" y="4" rx="2"/><path d="M4 10h16"/><path d="m9 16 2 2 4-4"/></svg>
-          <span>In Kalender speichern</span>
-        </button>
-      )}
+  {calendarDownload && (
+    <footer class="mt-auto">
+      <button
+        type="button"
+        class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-brand-500/60 bg-white px-5 py-2.5 text-sm font-semibold text-brand-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:border-brand-300/50 dark:bg-transparent dark:text-brand-200"
+        data-calendar-button
+        data-calendar-title={event.title ?? 'Repair Café Leonberg Termin'}
+        data-calendar-date={formattedDate || undefined}
+        data-calendar-time={calendarTimeLabel || undefined}
+        data-calendar-location={calendarLocation || undefined}
+        data-calendar-ics={calendarDownload.icsHref}
+        data-calendar-ics-file={icsFileName}
+        data-calendar-gcal={calendarDownload.gcalHref}
+        data-calendar-outlook={calendarDownload.outlookHref}
+        aria-haspopup="dialog"
+        aria-expanded="false"
+      >
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="16" height="18" x="4" y="4" rx="2"/><path d="M4 10h16"/><path d="m9 16 2 2 4-4"/></svg>
+        <span>Kalendereintrag erstellen</span>
+      </button>
     </footer>
-  </div>
+  )}
 </article>
