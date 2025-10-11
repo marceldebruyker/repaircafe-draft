@@ -95,3 +95,13 @@ export const teamVoicesQuery = groq`
     portraitAlt
   }
 `;
+
+export const guestbookEntriesQuery = groq`
+  *[_type == "guestbookEntry" && approved == true] | order(_createdAt desc) {
+    _id,
+    name,
+    city,
+    message,
+    _createdAt
+  }
+`;

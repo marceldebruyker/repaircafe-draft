@@ -6,7 +6,8 @@ import {
   galleryQuery,
   postBySlugQuery,
   heroGalleryQuery,
-  teamVoicesQuery
+  teamVoicesQuery,
+  guestbookEntriesQuery
 } from '../lib/queries';
 
 export interface EventItem {
@@ -44,6 +45,14 @@ export interface TeamVoice {
   portraitAlt?: string;
 }
 
+export interface GuestbookEntry {
+  _id: string;
+  name: string;
+  message: string;
+  city?: string;
+  _createdAt?: string;
+}
+
 const parseDateValue = (value?: string) => {
   if (!value) return 0;
   const time = Date.parse(value);
@@ -53,6 +62,9 @@ const parseDateValue = (value?: string) => {
 
 const sortPostsByPublished = (items: PostItem[]): PostItem[] =>
   [...items].sort((a, b) => parseDateValue(b.publishedAt) - parseDateValue(a.publishedAt));
+
+const sortGuestbookEntries = (items: GuestbookEntry[]): GuestbookEntry[] =>
+  [...items].sort((a, b) => parseDateValue(b._createdAt) - parseDateValue(a._createdAt));
 
 export interface GalleryItem {
   _id: string;
@@ -219,6 +231,24 @@ const fallbackGallery: GalleryItem[] = [
   }
 ];
 
+const fallbackGuestbookEntries: GuestbookEntry[] = [
+  {
+    _id: 'fallback-gb-1',
+    name: 'Anna & Jonas',
+    city: 'Leonberg',
+    message:
+      'Vielen Dank für die großartige Unterstützung bei unserer Kaffeemaschine! Wir kommen sehr gern wieder vorbei.',
+    _createdAt: '2024-01-10T10:00:00Z'
+  },
+  {
+    _id: 'fallback-gb-2',
+    name: 'Familie Schneider',
+    message:
+      'Toll, wie viel Geduld und Know-how ihr mitbringt. Unser Staubsauger lebt weiter – herzlichen Dank!',
+    _createdAt: '2023-11-21T09:30:00Z'
+  }
+];
+
 const fallbackTeamVoices: TeamVoice[] = [
   {
     _id: 'fallback-voice-1',
@@ -316,4 +346,19 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
     ?.flatMap((doc) => doc.slides ?? [])
     .filter((slide) => slide?.image);
   return slides && slides.length ? slides : fallbackHeroSlides;
+}
+
+export async function getGuestbookEntries(): Promise<GuestbookEntry[]> {
+  if (!isSanityConfigured || !sanityClient) return sortGuestbookEntries(fallbackGuestbookEntries);
+
+  try {
+    const data = await sanityClient.fetch<GuestbookEntry[]>(guestbookEntriesQuery);
+    if (!data || data.length === 0) {
+      return sortGuestbookEntries(fallbackGuestbookEntries);
+    }
+    return sortGuestbookEntries(data);
+  } catch (error) {
+    console.warn('Fehler beim Laden der Gästebuch-Einträge:', error);
+    return sortGuestbookEntries(fallbackGuestbookEntries);
+  }
 }
