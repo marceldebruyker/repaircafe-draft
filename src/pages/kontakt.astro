@@ -6,7 +6,7 @@ import CTA from "../components/CTA.astro";
 
 const pageTitle = 'Kontakt – Repair Café Leonberg';
 const pageDescription = 'Kontaktiere das Repair Café Leonberg bei Fragen, Anmerkungen oder für Kooperationen.';
-const contactEmail = 'kontakt@repaircafe-leonberg.de';
+const contactEmail = 'info@repair-leonberg.de';
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
@@ -202,7 +202,7 @@ const contactEmail = 'kontakt@repaircafe-leonberg.de';
         message
       ].join('\n');
 
-      const subject = encodeURIComponent('Kontaktanfrage über repaircafe-leonberg.de');
+      const subject = encodeURIComponent('Kontaktanfrage über repair-leonberg.de');
       const body = encodeURIComponent(mailBody);
       const mailtoLink = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
 

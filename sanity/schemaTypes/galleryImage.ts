@@ -3,13 +3,11 @@ import { defineType, defineField, set } from 'sanity';
 import type { StringInputProps } from 'sanity';
 
 const galleryCategoryOptions = [
-  { title: 'Elektronik & Haushalt', value: 'elektronik-haushalt' },
-  { title: 'Lampen & Licht', value: 'lampen-licht' },
-  { title: 'IT & Medien', value: 'it-medien' },
+  { title: 'Elektro', value: 'elektro' },
+  { title: 'PC-Telefon', value: 'pc-telefon' },
+  { title: 'Holz-Sonstiges', value: 'holz-sonstiges' },
+  { title: 'Textil', value: 'textil' },
   { title: 'Fahrrad', value: 'fahrrad' },
-  { title: 'Textil & Nähen', value: 'textil-naehen' },
-  { title: 'Möbel & Holz', value: 'moebel-holz' },
-  { title: 'Spielzeug & Sonstiges', value: 'spielzeug-sonstiges' },
   { title: 'Kaffee & Community', value: 'kaffee-community' },
   { title: 'Standort & Umgebung', value: 'location' }
 ];

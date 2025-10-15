@@ -18,20 +18,29 @@ const rawGalleryItems = (await getGalleryImages())
   .filter(Boolean) as GalleryWithImage[];
 
 const categoryLabels: Record<string, string> = {
-  'elektronik-haushalt': 'Elektronik & Haushalt',
-  'lampen-licht': 'Lampen & Licht',
-  'it-medien': 'IT & Medien',
+  elektro: 'Elektro',
+  'pc-telefon': 'PC-Telefon',
+  'holz-sonstiges': 'Holz-Sonstiges',
+  textil: 'Textil',
   fahrrad: 'Fahrrad',
-  'textil-naehen': 'Textil & Nähen',
-  'moebel-holz': 'Möbel & Holz',
-  'spielzeug-sonstiges': 'Spielzeug & Sonstiges',
   'kaffee-community': 'Kaffee & Community',
   location: 'Standort & Umgebung'
 };
 
 const categoryAliases: Record<string, string> = {
-  repair: 'elektronik-haushalt',
-  workshop: 'textil-naehen',
+  repair: 'elektro',
+  'elektronik-haushalt': 'elektro',
+  'lampen-licht': 'elektro',
+  elektronik: 'elektro',
+  'it-medien': 'pc-telefon',
+  pc: 'pc-telefon',
+  telefon: 'pc-telefon',
+  workshop: 'textil',
+  textil: 'textil',
+  'textil-naehen': 'textil',
+  'moebel-holz': 'holz-sonstiges',
+  holz: 'holz-sonstiges',
+  'spielzeug-sonstiges': 'holz-sonstiges',
   community: 'kaffee-community',
   standort: 'location',
   'standort-umgebung': 'location',
@@ -39,11 +48,11 @@ const categoryAliases: Record<string, string> = {
 };
 
 const normalizeCategory = (value?: string) => {
-  if (!value) return 'spielzeug-sonstiges';
+  if (!value) return 'elektro';
   const lowered = value.toLowerCase();
   if (categoryLabels[lowered]) return lowered;
   if (categoryAliases[lowered]) return categoryAliases[lowered];
-  return 'spielzeug-sonstiges';
+  return 'elektro';
 };
 
 type NormalizedGalleryItem = GalleryWithImage & { categories: string[] };
@@ -59,15 +68,27 @@ const galleryItems: NormalizedGalleryItem[] = rawGalleryItems.map((item) => {
     .map((category) => normalizeCategory(String(category)))
     .filter((category, index, array) => array.indexOf(category) === index);
 
+  const normalizedCategories = categories.length ? categories : ['elektro'];
+
   return {
     ...item,
-    categories: categories.length ? categories : ['spielzeug-sonstiges']
+    categories: normalizedCategories
   };
 });
 
+const orderedCategories: (keyof typeof categoryLabels)[] = [
+  'elektro',
+  'pc-telefon',
+  'holz-sonstiges',
+  'textil',
+  'fahrrad',
+  'kaffee-community',
+  'location'
+];
+
 const filters = [
   { key: 'all', label: 'Alle Momente' },
-  ...Object.entries(categoryLabels).map(([key, label]) => ({ key, label }))
+  ...orderedCategories.map((key) => ({ key, label: categoryLabels[key] }))
 ];
 
 const layoutClass = (layout: 'standard' | 'wide' | 'tall' | undefined) => {

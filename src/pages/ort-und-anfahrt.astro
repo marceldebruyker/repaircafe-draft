@@ -178,11 +178,10 @@ const locationGalleryItems = normalizedGalleryItems;
                 role="list"
                 aria-label="Galerie mit Standortbildern"
               >
-                {locationGalleryItems.map((item) => (
+                {locationGalleryItems.map((item, index) => (
                   <figure
                     class="relative flex-shrink-0 snap-start overflow-hidden rounded-3xl bg-white shadow-lg shadow-slate-900/10 w-[85vw] sm:w-[70vw] md:w-[min(28rem,calc((100%-1rem)/2))] lg:w-[min(28rem,calc((100%-2rem)/3))]"
                     role="listitem"
-                    tabindex="0"
                   >
                     <div class="relative aspect-[4/3] w-full">
                       <img
@@ -192,18 +191,65 @@ const locationGalleryItems = normalizedGalleryItems;
                         class="absolute inset-0 h-full w-full object-cover"
                       />
                     </div>
-                    <figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/80 via-slate-900/40 to-transparent px-4 pb-4 pt-12 text-sm text-white">
+                    <figcaption
+                      id={`location-gallery-caption-${index}`}
+                      class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/80 via-slate-900/40 to-transparent px-4 pb-4 pt-12 text-sm text-white"
+                    >
                       {item.title && <span class="font-semibold leading-tight">{item.title}</span>}
                       {item.description && (
                         <span class="mt-1 block text-xs text-white/80">{item.description}</span>
                       )}
                     </figcaption>
+                    <button
+                      type="button"
+                      class="absolute inset-0 z-10 rounded-3xl bg-transparent cursor-zoom-in focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
+                      data-lightbox-trigger
+                      data-image={item.image}
+                      data-title={item.title ?? ''}
+                      data-description={item.description ?? ''}
+                      data-alt={item.alt ?? item.title ?? 'Foto vom Repair Café Standort'}
+                      aria-label={`Bild vergrößern: ${item.title ?? 'Impression vom Standort'}`}
+                      aria-haspopup="dialog"
+                      aria-describedby={`location-gallery-caption-${index}`}
+                    ></button>
                   </figure>
                 ))}
               </div>
             </div>
           </div>
         )}
+
+        <div
+          id="location-lightbox"
+          class="pointer-events-none fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/80 p-6 backdrop-blur transition-opacity duration-300 opacity-0"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="location-lightbox-title"
+          aria-hidden="true"
+        >
+          <button
+            id="location-lightbox-close"
+            type="button"
+            class="absolute right-6 top-6 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-slate-800 shadow-lg shadow-slate-900/30 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white"
+            aria-label="Bild schließen"
+          >
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M6 18L18 6" /></svg>
+          </button>
+          <div class="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-[2.25rem] border border-white/10 bg-gradient-to-b from-slate-900/90 via-slate-900/80 to-slate-950/95 shadow-2xl shadow-slate-950/60">
+            <div class="relative flex items-center justify-center bg-slate-900">
+              <img
+                id="location-lightbox-image"
+                src=""
+                alt=""
+                class="max-h-[70vh] w-full scale-95 object-contain opacity-0 transition duration-500 ease-out"
+              />
+            </div>
+            <div class="border-t border-white/10 bg-slate-900/80 px-6 py-6 text-center text-white">
+              <h3 id="location-lightbox-title" class="text-lg font-semibold tracking-tight"></h3>
+              <p id="location-lightbox-description" class="mt-2 text-sm text-slate-200/80"></p>
+            </div>
+          </div>
+        </div>
 
         <div class="mt-12 rounded-3xl bg-white p-8 text-center shadow-lg shadow-slate-900/5">
           <h2 class="heading-sub">Termine im Überblick</h2>
@@ -241,6 +287,87 @@ const locationGalleryItems = normalizedGalleryItems;
 
       prevButton?.addEventListener('click', () => scrollByAmount(-1));
       nextButton?.addEventListener('click', () => scrollByAmount(1));
+
+      const lightbox = document.getElementById('location-lightbox');
+      const lightboxImage = document.getElementById('location-lightbox-image');
+      const lightboxTitle = document.getElementById('location-lightbox-title');
+      const lightboxDescription = document.getElementById('location-lightbox-description');
+      const closeButton = document.getElementById('location-lightbox-close');
+      const triggers = Array.from(document.querySelectorAll('[data-lightbox-trigger]'));
+
+      if (lightbox && lightboxImage && lightboxTitle && lightboxDescription && triggers.length) {
+        let activeTrigger = null;
+
+        const openLightbox = (trigger) => {
+          const image = trigger.dataset.image ?? '';
+          if (!image) return;
+
+          activeTrigger = trigger;
+
+          lightboxImage.src = image;
+          lightboxImage.alt = trigger.dataset.alt ?? '';
+
+          const title = trigger.dataset.title?.trim();
+          const description = trigger.dataset.description?.trim();
+
+          lightboxTitle.textContent = title && title.length ? title : 'Impression vom Standort';
+          lightboxDescription.textContent = description && description.length ? description : 'Ein Blick auf das Repair Café Leonberg.';
+
+          lightbox.classList.remove('pointer-events-none', 'opacity-0');
+          lightbox.classList.add('opacity-100');
+          lightbox.setAttribute('aria-hidden', 'false');
+          lightbox.dataset.open = 'true';
+
+          lightboxImage.style.transform = 'scale(0.95)';
+          lightboxImage.style.opacity = '0';
+
+          requestAnimationFrame(() => {
+            lightboxImage.style.transform = 'scale(1)';
+            lightboxImage.style.opacity = '1';
+          });
+
+          document.body.classList.add('overflow-hidden');
+          closeButton && closeButton.focus();
+        };
+
+        const closeLightbox = () => {
+          if (lightbox.dataset.open !== 'true') return;
+
+          lightbox.dataset.open = 'false';
+          lightbox.classList.add('pointer-events-none');
+          lightbox.classList.remove('opacity-100');
+          lightbox.classList.add('opacity-0');
+          lightbox.setAttribute('aria-hidden', 'true');
+
+          lightboxImage.style.transform = 'scale(0.95)';
+          lightboxImage.style.opacity = '0';
+          lightboxImage.src = '';
+
+          document.body.classList.remove('overflow-hidden');
+
+          const returnTarget = activeTrigger;
+          activeTrigger = null;
+          returnTarget && returnTarget.focus();
+        };
+
+        triggers.forEach((trigger) => {
+          trigger.addEventListener('click', () => openLightbox(trigger));
+        });
+
+        closeButton && closeButton.addEventListener('click', closeLightbox);
+
+        lightbox.addEventListener('click', (event) => {
+          if (event.target === lightbox) {
+            closeLightbox();
+          }
+        });
+
+        window.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') {
+            closeLightbox();
+          }
+        });
+      }
     });
   </script>
 
