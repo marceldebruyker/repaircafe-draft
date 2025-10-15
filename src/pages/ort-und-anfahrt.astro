@@ -193,11 +193,11 @@ const locationGalleryItems = normalizedGalleryItems;
                     </div>
                     <figcaption
                       id={`location-gallery-caption-${index}`}
-                      class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/80 via-slate-900/40 to-transparent px-4 pb-4 pt-12 text-sm text-white"
+                      class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/85 via-slate-900/45 to-transparent px-5 pb-5 pt-14 text-sm text-white backdrop-blur-sm"
                     >
-                      {item.title && <span class="font-semibold leading-tight">{item.title}</span>}
+                      {item.title && <span class="font-semibold leading-tight drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">{item.title}</span>}
                       {item.description && (
-                        <span class="mt-1 block text-xs text-white/80">{item.description}</span>
+                        <span class="mt-1 block text-xs text-white/85 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">{item.description}</span>
                       )}
                     </figcaption>
                     <button
@@ -243,6 +243,22 @@ const locationGalleryItems = normalizedGalleryItems;
                 alt=""
                 class="max-h-[70vh] w-full scale-95 object-contain opacity-0 transition duration-500 ease-out"
               />
+              <button
+                id="location-lightbox-prev"
+                type="button"
+                class="absolute left-4 top-1/2 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-slate-800 shadow-lg shadow-slate-900/30 backdrop-blur-sm transition hover:-translate-y-[calc(50%+4px)] hover:bg-white"
+                aria-label="Vorheriges Bild"
+              >
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6" /></svg>
+              </button>
+              <button
+                id="location-lightbox-next"
+                type="button"
+                class="absolute right-4 top-1/2 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-slate-800 shadow-lg shadow-slate-900/30 backdrop-blur-sm transition hover:-translate-y-[calc(50%+4px)] hover:bg-white"
+                aria-label="Nächstes Bild"
+              >
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" /></svg>
+              </button>
             </div>
             <div class="border-t border-white/10 bg-slate-900/80 px-6 py-6 text-center text-white">
               <h3 id="location-lightbox-title" class="text-lg font-semibold tracking-tight"></h3>
@@ -293,16 +309,25 @@ const locationGalleryItems = normalizedGalleryItems;
       const lightboxTitle = document.getElementById('location-lightbox-title');
       const lightboxDescription = document.getElementById('location-lightbox-description');
       const closeButton = document.getElementById('location-lightbox-close');
-      const triggers = Array.from(document.querySelectorAll('[data-lightbox-trigger]'));
+      const prevControl = document.getElementById('location-lightbox-prev');
+      const nextControl = document.getElementById('location-lightbox-next');
+      const triggerNodes = Array.from(document.querySelectorAll('[data-lightbox-trigger]'));
+      const triggers = triggerNodes.filter((element) => element instanceof HTMLElement);
 
-      if (lightbox && lightboxImage && lightboxTitle && lightboxDescription && triggers.length) {
+      if (
+        lightbox instanceof HTMLElement &&
+        lightboxImage instanceof HTMLImageElement &&
+        lightboxTitle instanceof HTMLElement &&
+        lightboxDescription instanceof HTMLElement &&
+        triggers.length
+      ) {
         let activeTrigger = null;
+        let currentIndex = -1;
 
-        const openLightbox = (trigger) => {
+        const setContentFromTrigger = (trigger) => {
+          if (!(trigger instanceof HTMLElement)) return;
           const image = trigger.dataset.image ?? '';
           if (!image) return;
-
-          activeTrigger = trigger;
 
           lightboxImage.src = image;
           lightboxImage.alt = trigger.dataset.alt ?? '';
@@ -313,6 +338,19 @@ const locationGalleryItems = normalizedGalleryItems;
           lightboxTitle.textContent = title && title.length ? title : 'Impression vom Standort';
           lightboxDescription.textContent = description && description.length ? description : 'Ein Blick auf das Repair Café Leonberg.';
 
+          requestAnimationFrame(() => {
+            lightboxImage.style.transform = 'scale(1)';
+            lightboxImage.style.opacity = '1';
+          });
+        };
+
+        const openAtIndex = (index) => {
+          const trigger = triggers[index];
+          if (!trigger) return;
+
+          activeTrigger = trigger;
+          currentIndex = index;
+
           lightbox.classList.remove('pointer-events-none', 'opacity-0');
           lightbox.classList.add('opacity-100');
           lightbox.setAttribute('aria-hidden', 'false');
@@ -321,13 +359,33 @@ const locationGalleryItems = normalizedGalleryItems;
           lightboxImage.style.transform = 'scale(0.95)';
           lightboxImage.style.opacity = '0';
 
-          requestAnimationFrame(() => {
-            lightboxImage.style.transform = 'scale(1)';
-            lightboxImage.style.opacity = '1';
-          });
+          setContentFromTrigger(trigger);
 
           document.body.classList.add('overflow-hidden');
-          closeButton && closeButton.focus();
+          if (closeButton instanceof HTMLElement) {
+            closeButton.focus();
+          }
+        };
+
+        const openLightbox = (trigger) => {
+          const index = triggers.indexOf(trigger);
+          if (index === -1) return;
+          openAtIndex(index);
+        };
+
+        const goTo = (step) => {
+          if (currentIndex === -1) return;
+          const total = triggers.length;
+          if (!total) return;
+          currentIndex = (currentIndex + step + total) % total;
+          const trigger = triggers[currentIndex];
+          if (!trigger) return;
+
+          activeTrigger = trigger;
+          lightboxImage.style.transform = 'scale(0.95)';
+          lightboxImage.style.opacity = '0';
+
+          setContentFromTrigger(trigger);
         };
 
         const closeLightbox = () => {
@@ -347,14 +405,29 @@ const locationGalleryItems = normalizedGalleryItems;
 
           const returnTarget = activeTrigger;
           activeTrigger = null;
-          returnTarget && returnTarget.focus();
+          currentIndex = -1;
+          if (returnTarget instanceof HTMLElement) {
+            returnTarget.focus();
+          }
         };
 
-        triggers.forEach((trigger) => {
-          trigger.addEventListener('click', () => openLightbox(trigger));
+        triggers.forEach((trigger, index) => {
+          trigger.addEventListener('click', () => openAtIndex(index));
+          trigger.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+              openAtIndex(index);
+            }
+          });
         });
 
-        closeButton && closeButton.addEventListener('click', closeLightbox);
+        if (prevControl instanceof HTMLElement) {
+          prevControl.addEventListener('click', () => goTo(-1));
+        }
+        if (nextControl instanceof HTMLElement) {
+          nextControl.addEventListener('click', () => goTo(1));
+        }
+
+        closeButton instanceof HTMLElement && closeButton.addEventListener('click', closeLightbox);
 
         lightbox.addEventListener('click', (event) => {
           if (event.target === lightbox) {
@@ -365,6 +438,14 @@ const locationGalleryItems = normalizedGalleryItems;
         window.addEventListener('keydown', (event) => {
           if (event.key === 'Escape') {
             closeLightbox();
+          }
+          if (event.key === 'ArrowLeft' && currentIndex !== -1) {
+            event.preventDefault();
+            goTo(-1);
+          }
+          if (event.key === 'ArrowRight' && currentIndex !== -1) {
+            event.preventDefault();
+            goTo(1);
           }
         });
       }
