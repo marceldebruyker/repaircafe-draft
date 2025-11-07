@@ -6,7 +6,9 @@ import CTA from "../components/CTA.astro";
 
 const pageTitle = 'Kontakt – Repair Café Leonberg';
 const pageDescription = 'Kontaktiere das Repair Café Leonberg bei Fragen, Anmerkungen oder für Kooperationen.';
-const contactEmail = 'info@repair-leonberg.de';
+const contactEmail = 'westocker@online.de';
+const contactPhone = '07152 990 4977';
+const contactPhoneLink = 'tel:071529904977';
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
@@ -104,13 +106,23 @@ const contactEmail = 'info@repair-leonberg.de';
             <div class="rounded-3xl bg-white p-8 shadow-xl shadow-slate-900/5">
               <h3 class="card-title">Direkter Kontakt</h3>
               <p class="mt-3 text-sm text-slate-600">
-                Sie erreichen das Orga-Team auch direkt per E-Mail. Auf Social Media halten wir Sie zudem über Termine auf dem Laufenden.
+                Sie erreichen das Orga-Team direkt per Info-Telefon oder E-Mail. Auf Social Media halten wir Sie zudem über Termine auf dem Laufenden.
               </p>
               <div class="mt-6 space-y-3 text-sm">
-                <div>
-                  <span class="font-semibold text-slate-900">E-Mail:</span>
-                  <a class="ml-2 text-brand-700 hover:underline" href={`mailto:${contactEmail}`}>{contactEmail}</a>
-                </div>
+                <a
+                  class="group inline-flex items-baseline text-slate-800 transition hover:text-brand-700 dark:text-slate-100 dark:hover:text-brand-300"
+                  href={contactPhoneLink}
+                >
+                  <span class="font-semibold text-slate-900 dark:text-white">Info-Telefon:</span>
+                  <span class="ml-2 text-brand-700 underline-offset-2 group-hover:underline dark:text-brand-300">{contactPhone}</span>
+                </a>
+                <a
+                  class="group inline-flex items-baseline text-slate-800 transition hover:text-brand-700 dark:text-slate-100 dark:hover:text-brand-300"
+                  href={`mailto:${contactEmail}`}
+                >
+                  <span class="font-semibold text-slate-900 dark:text-white">E-Mail:</span>
+                  <span class="ml-2 text-brand-700 underline-offset-2 group-hover:underline dark:text-brand-300">{contactEmail}</span>
+                </a>
                 <div>
                   <span class="font-semibold text-slate-900">Instagram:</span>
                   <a class="ml-2 text-brand-700 hover:underline" href="https://www.instagram.com/repaircafe.leonberg" target="_blank" rel="noopener">@repaircafe.leonberg</a>
@@ -124,9 +136,9 @@ const contactEmail = 'info@repair-leonberg.de';
               </p>
               <a
                 class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:underline"
-                href="https://maps.google.com"
+                href="https://www.openstreetmap.org/?mlat=48.7952078&amp;mlon=9.0126756#map=18/48.7952078/9.0126756"
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
               >
                 Auf Karte ansehen
               </a>
