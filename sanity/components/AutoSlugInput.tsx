@@ -14,10 +14,10 @@ const slugify = (input: string) =>
     .slice(0, 96);
 
 const buildSlugBase = (title?: string, date?: string, startTime?: string) => {
+  if (!title) return '';
   const normalizedDate = date?.split('T')[0];
   const normalizedTime = startTime?.replace(':', '-');
-  const parts = [title, normalizedDate, normalizedTime].filter(Boolean);
-  return parts.length ? slugify(parts.join(' ')) : '';
+  return slugify([title, normalizedDate, normalizedTime].filter(Boolean).join(' '));
 };
 
 const DEFAULT_API_VERSION = '2024-01-01';
@@ -37,16 +37,18 @@ export function AutoSlugInput(props: SlugInputProps) {
   const targetDocumentType =
     (schemaType?.options as {documentType?: string} | undefined)?.documentType ?? 'event';
 
+  const base = buildSlugBase(title, date, startTime);
+  const baseFromTitleOnly = title ? slugify(title) : '';
+
   useEffect(() => {
-    const shouldGenerate = Boolean(title && date && startTime && !currentSlug && baseId);
+    const shouldGenerate = Boolean(
+      baseId && base && (!currentSlug || currentSlug === baseFromTitleOnly)
+    );
     if (!shouldGenerate) return;
 
     let cancelled = false;
 
     const generate = async () => {
-      const base = buildSlugBase(title, date, startTime);
-      if (!base) return;
-
       let candidate = base;
       let suffix = 1;
 
@@ -84,7 +86,7 @@ export function AutoSlugInput(props: SlugInputProps) {
     return () => {
       cancelled = true;
     };
-  }, [title, date, startTime, currentSlug, targetDocumentType, baseId, client, onChange]);
+  }, [base, baseFromTitleOnly, currentSlug, targetDocumentType, baseId, client, onChange]);
 
   return (
     <Card padding={3} radius={2} shadow={0} tone="transparent">
@@ -95,7 +97,7 @@ export function AutoSlugInput(props: SlugInputProps) {
         <Text size={1} muted={!currentSlug}>
           {currentSlug
             ? currentSlug
-            : 'Wird automatisch generiert, sobald Titel, Datum und Beginn eingetragen sind.'}
+            : 'Wird automatisch generiert, sobald ein Titel vorhanden ist (Datum/Beginn verfeinern ihn).'}
         </Text>
       </Stack>
     </Card>
