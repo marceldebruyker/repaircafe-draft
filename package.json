@@ -18,7 +18,8 @@
     "@portabletext/to-html": "^3.0.0",
     "@sanity/client": "^7.11.2",
     "astro": "^4.10.0",
-    "groq": "^4.10.1"
+    "groq": "^4.10.1",
+    "nodemailer": "^7.0.10"
   },
   "devDependencies": {
     "@sanity/cli": "^4.10.1",

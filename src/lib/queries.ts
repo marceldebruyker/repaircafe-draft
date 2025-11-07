@@ -96,6 +96,14 @@ export const teamVoicesQuery = groq`
   }
 `;
 
+export const aboutPageQuery = groq`
+  *[_type == "aboutPage"][0] {
+    "teamImage": teamImage.asset->url,
+    teamImageAlt,
+    missionParagraphs
+  }
+`;
+
 export const guestbookEntriesQuery = groq`
   *[_type == "guestbookEntry" && approved == true] | order(_createdAt desc) {
     _id,

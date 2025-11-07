@@ -107,7 +107,7 @@ const locationGalleryItems = normalizedGalleryItems;
                 href="https://www.openstreetmap.org/?mlat=48.7952078&amp;mlon=9.0126756#map=18/48.7952078/9.0126756"
                 class="inline-flex items-center gap-2 font-semibold text-brand-700 underline-offset-2 hover:underline"
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
               >
                 Größere Karte in OpenStreetMap öffnen
                 <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -191,13 +191,14 @@ const locationGalleryItems = normalizedGalleryItems;
                         class="absolute inset-0 h-full w-full object-cover"
                       />
                     </div>
+                    <div class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950/85 via-slate-950/35 to-transparent opacity-95 transition duration-300"></div>
                     <figcaption
                       id={`location-gallery-caption-${index}`}
-                      class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/85 via-slate-900/45 to-transparent px-5 pb-5 pt-14 text-sm text-white backdrop-blur-sm"
+                      class="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-1 px-5 pb-5 pt-14 text-sm text-white transition duration-300"
                     >
-                      {item.title && <span class="font-semibold leading-tight drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">{item.title}</span>}
+                      {item.title && <span class="font-semibold leading-tight drop-shadow-[0_3px_8px_rgba(15,15,15,0.55)]">{item.title}</span>}
                       {item.description && (
-                        <span class="mt-1 block text-xs text-white/85 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">{item.description}</span>
+                        <span class="mt-1 block text-xs text-white/85 drop-shadow-[0_2px_5px_rgba(10,10,10,0.55)]">{item.description}</span>
                       )}
                     </figcaption>
                     <button

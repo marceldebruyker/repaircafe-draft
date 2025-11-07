@@ -3,9 +3,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import CTA from "../components/CTA.astro";
-import { getTeamVoices } from "../data/cms";
+import { getTeamVoices, getAboutPageContent } from "../data/cms";
 
-const teamVoices = await getTeamVoices();
+const [teamVoices, aboutPage] = await Promise.all([getTeamVoices(), getAboutPageContent()]);
+const teamImageUrl = aboutPage?.teamImage;
+const teamImageAlt = aboutPage?.teamImageAlt ?? 'Team des Repair Café Leonberg';
+const missionParagraphs = aboutPage?.missionParagraphs ?? [];
 const values = [
   {
     title: 'Nachhaltigkeit',
@@ -50,25 +53,42 @@ const values = [
       <div class="container">
         <div class="grid gap-8 lg:grid-cols-2 lg:items-center">
           <div class="relative overflow-hidden rounded-[32px] bg-white/90 shadow-xl shadow-slate-900/10">
-            <div class="aspect-[4/3] w-full bg-gradient-to-br from-slate-200 via-slate-300 to-slate-200"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-900/70 text-center text-white">
-              <span class="rounded-full border border-white/30 px-4 py-1 text-xs uppercase tracking-[0.32em]">Teamgeist</span>
-              <p class="max-w-sm text-lg font-semibold">Hier könnte ein großes Teamfoto stehen – lachende Gesichter, Werkzeuge in der Hand und jede Menge gute Laune.</p>
+            <div class="relative aspect-[4/3] w-full">
+              {teamImageUrl ? (
+                <>
+                  <img src={teamImageUrl} alt={teamImageAlt} loading="lazy" class="h-full w-full object-cover" />
+                  <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/65 via-slate-900/10 to-transparent"></div>
+                  <div class="absolute bottom-4 left-4 flex max-w-sm flex-col gap-2 text-white drop-shadow-[0_6px_20px_rgba(0,0,0,0.45)]">
+                    <span class="inline-flex w-fit items-center gap-2 rounded-full border border-white/30 px-4 py-1 text-xs uppercase tracking-[0.3em]">
+                      Teamgeist
+                    </span>
+                    <p class="text-base font-semibold leading-relaxed">
+                      Gemeinsam stark fürs Reparieren – das Team des Repair Café Leonberg.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div class="absolute inset-0 bg-gradient-to-br from-slate-200 via-slate-400 to-slate-600"></div>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-900/70 text-center text-white">
+                    <span class="rounded-full border border-white/30 px-4 py-1 text-xs uppercase tracking-[0.32em]">Teamgeist</span>
+                    <p class="max-w-sm text-lg font-semibold">
+                      Hier könnte ein großes Teamfoto stehen – lachende Gesichter, Werkzeuge in der Hand und jede Menge gute Laune.
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
           <div class="space-y-8">
             <div class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-900/5">
               <h2 class="heading-sub">Unsere Mission</h2>
-              <p class="mt-4 text-sm text-slate-600">
-                Reparieren ist mehr als Technik. Es ist Gemeinschaft, Nachhaltigkeit und Empowerment. Im Repair Café Leonberg bringen wir Menschen zusammen, die ihre Lieblingsgeräte behalten, Ressourcen schonen und voneinander lernen wollen. Egal ob Sie Erfahrung mitbringen oder einfach neugierig sind – bei uns sind Sie willkommen.
-              </p>
-              <p class="mt-4 text-sm text-slate-600">
-                Jede Veranstaltung wird von einem Team aus Elektronik-, Textil- und Fahrradbegeisterten vorbereitet. Dazu kommen Gastgeber:innen, die für Kaffee und eine freundliche Atmosphäre sorgen.
-              </p>
-              <p class="mt-4 text-sm text-slate-600">
-                Das Repair Café Leonberg ist eine Arbeitsgruppe der Lokalen Agenda&nbsp;21 Leonberg – wir arbeiten eng mit weiteren Initiativen zusammen, die sich für ein nachhaltiges und lebenswertes Leonberg einsetzen.
-              </p>
+              <div class="mt-4 space-y-4 text-sm text-slate-600">
+                {missionParagraphs.map((paragraph) => (
+                  <p>{paragraph}</p>
+                ))}
+              </div>
               <figure class="mt-6 max-h-48 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm shadow-slate-900/10 dark:border-slate-700/60 dark:bg-slate-900/60">
                 <img
                   src="/lokaleagenda21.jpg"

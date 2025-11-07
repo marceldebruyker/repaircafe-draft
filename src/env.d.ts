@@ -6,6 +6,12 @@ interface ImportMetaEnv {
   readonly SANITY_DATASET?: string;
   readonly SANITY_API_VERSION?: string;
   readonly SANITY_READ_TOKEN?: string;
+  readonly SMTP_HOST?: string;
+  readonly SMTP_PORT?: string;
+  readonly SMTP_USER?: string;
+  readonly SMTP_PASS?: string;
+  readonly SMTP_FROM?: string;
+  readonly CONTACT_RECIPIENT?: string;
 }
 
 interface ImportMeta {

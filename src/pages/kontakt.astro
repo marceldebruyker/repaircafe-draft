@@ -6,7 +6,7 @@ import CTA from "../components/CTA.astro";
 
 const pageTitle = 'Kontakt – Repair Café Leonberg';
 const pageDescription = 'Kontaktiere das Repair Café Leonberg bei Fragen, Anmerkungen oder für Kooperationen.';
-const contactEmail = 'westocker@online.de';
+const contactEmail = 'info@repair-leonberg.de';
 const contactPhone = '07152 990 4977';
 const contactPhoneLink = 'tel:071529904977';
 ---
@@ -132,7 +132,7 @@ const contactPhoneLink = 'tel:071529904977';
             <div class="rounded-3xl bg-white p-8 shadow-xl shadow-slate-900/5">
               <h3 class="card-title">Besuch uns vor Ort</h3>
               <p class="mt-3 text-sm text-slate-600">
-                Unsere Veranstaltungen finden an wechselnden Orten in Leonberg statt. Schauen Sie in den Terminen nach oder schreiben Sie uns für Details.
+                Unsere Veranstaltungen finden verlässlich im Bürgerzentrum Stadtmitte, Neuköllner Straße 5, statt. Alle Termine sehen Sie im Kalender oder auf Nachfrage direkt beim Team.
               </p>
               <a
                 class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:underline"
@@ -154,11 +154,31 @@ const contactPhoneLink = 'tel:071529904977';
 
   <script>
     const form = document.getElementById('contact-form');
-    const CONTACT_EMAIL = form?.dataset.contactEmail ?? '';
     const status = document.getElementById('contact-status');
+    const submitButton = document.querySelector('#contact-form button[type="submit"]');
     const formLoadedAt = Date.now();
 
-    form?.addEventListener('submit', (event) => {
+    const setStatus = (message, tone = 'muted') => {
+      if (!status) return;
+      status.textContent = message;
+      const base = 'text-sm';
+      const palette =
+        tone === 'error'
+          ? 'text-red-600'
+          : tone === 'success'
+            ? 'text-emerald-600'
+            : 'text-slate-500';
+      status.className = `${base} ${palette}`;
+    };
+
+    const setLoading = (loading) => {
+      if (!submitButton) return;
+      submitButton.disabled = loading;
+      submitButton.dataset.loading = loading ? 'true' : 'false';
+      submitButton.style.opacity = loading ? '0.7' : '';
+    };
+
+    form?.addEventListener('submit', async (event) => {
       event.preventDefault();
 
       const getTextValue = (id) => {
@@ -181,49 +201,53 @@ const contactPhoneLink = 'tel:071529904977';
       const copy = getCheckboxValue('contact-copy');
 
       if (!name || !email || !message) {
-        if (status) {
-          status.textContent = 'Bitte füllen Sie alle Pflichtfelder aus.';
-          status.className = 'text-sm text-red-600';
-        }
+        setStatus('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
         return;
       }
 
       if (company) {
-        if (status) {
-          status.textContent = 'Die Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut oder nutzen Sie alternativ die E-Mail-Adresse.';
-          status.className = 'text-sm text-red-600';
-        }
+        setStatus(
+          'Die Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut oder nutzen Sie alternativ die E-Mail-Adresse.',
+          'error'
+        );
         return;
       }
 
       const timeSinceLoad = Date.now() - formLoadedAt;
       if (timeSinceLoad < 2000) {
-        if (status) {
-          status.textContent = 'Bitte senden Sie das Formular noch einmal – ein kurzer Moment verhindert Spam.';
-          status.className = 'text-sm text-red-600';
-        }
+        setStatus('Bitte senden Sie das Formular noch einmal – ein kurzer Moment verhindert Spam.', 'error');
         return;
       }
 
-      const mailBody = [
-        `Name: ${name}`,
-        `Mail: ${email}`,
-        `Kopie gewünscht: ${copy ? 'Ja' : 'Nein'}`,
-        '',
-        'Nachricht:',
-        message
-      ].join('\n');
+      setStatus('Nachricht wird gesendet …', 'muted');
+      setLoading(true);
 
-      const subject = encodeURIComponent('Kontaktanfrage über repair-leonberg.de');
-      const body = encodeURIComponent(mailBody);
-      const mailtoLink = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name, email, message, copy })
+        });
 
-      if (status) {
-        status.textContent = 'Ihr Mailprogramm öffnet sich – bitte prüfen und absenden.';
-        status.className = 'text-sm text-emerald-600';
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(data?.error || 'Die Nachricht konnte nicht gesendet werden.');
+        }
+
+        setStatus('Danke! Ihre Nachricht wurde versendet.', 'success');
+        form.reset();
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'Die Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es später erneut.';
+        setStatus(message, 'error');
+      } finally {
+        setLoading(false);
       }
-
-      window.location.href = mailtoLink;
     });
   </script>
 </BaseLayout>

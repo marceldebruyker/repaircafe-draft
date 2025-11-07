@@ -7,7 +7,8 @@ import {
   postBySlugQuery,
   heroGalleryQuery,
   teamVoicesQuery,
-  guestbookEntriesQuery
+  guestbookEntriesQuery,
+  aboutPageQuery
 } from '../lib/queries';
 
 export interface EventItem {
@@ -51,6 +52,12 @@ export interface GuestbookEntry {
   message: string;
   city?: string;
   _createdAt?: string;
+}
+
+export interface AboutPageContent {
+  teamImage?: string;
+  teamImageAlt?: string;
+  missionParagraphs?: string[];
 }
 
 const parseDateValue = (value?: string) => {
@@ -231,6 +238,16 @@ const fallbackGallery: GalleryItem[] = [
   }
 ];
 
+const fallbackAboutPage: AboutPageContent = {
+  teamImage: undefined,
+  teamImageAlt: 'Engagiertes Team des Repair Café Leonberg',
+  missionParagraphs: [
+    'Reparieren ist mehr als Technik. Es ist Gemeinschaft, Nachhaltigkeit und Empowerment. Im Repair Café Leonberg bringen wir Menschen zusammen, die ihre Lieblingsgeräte behalten, Ressourcen schonen und voneinander lernen wollen. Egal ob Sie Erfahrung mitbringen oder einfach neugierig sind – bei uns sind Sie willkommen.',
+    'Jede Veranstaltung wird von einem Team aus Elektronik-, Textil- und Fahrradbegeisterten vorbereitet. Dazu kommen Gastgeber:innen, die für Kaffee und eine freundliche Atmosphäre sorgen.',
+    'Das Repair Café Leonberg ist eine Arbeitsgruppe der Lokalen Agenda 21 Leonberg – wir arbeiten eng mit weiteren Initiativen zusammen, die sich für ein nachhaltiges und lebenswertes Leonberg einsetzen.'
+  ]
+};
+
 const fallbackGuestbookEntries: GuestbookEntry[] = [
   {
     _id: 'fallback-gb-1',
@@ -360,5 +377,24 @@ export async function getGuestbookEntries(): Promise<GuestbookEntry[]> {
   } catch (error) {
     console.warn('Fehler beim Laden der Gästebuch-Einträge:', error);
     return sortGuestbookEntries(fallbackGuestbookEntries);
+  }
+}
+
+export async function getAboutPageContent(): Promise<AboutPageContent> {
+  if (!isSanityConfigured || !sanityClient) return fallbackAboutPage;
+
+  try {
+    const data = await sanityClient.fetch<AboutPageContent | null>(aboutPageQuery);
+    return {
+      teamImage: data?.teamImage ?? fallbackAboutPage.teamImage,
+      teamImageAlt: data?.teamImageAlt ?? fallbackAboutPage.teamImageAlt,
+      missionParagraphs:
+        data?.missionParagraphs && data.missionParagraphs.length > 0
+          ? data.missionParagraphs
+          : fallbackAboutPage.missionParagraphs
+    };
+  } catch (error) {
+    console.error('[CMS] Failed to fetch about page content', error);
+    return fallbackAboutPage;
   }
 }
