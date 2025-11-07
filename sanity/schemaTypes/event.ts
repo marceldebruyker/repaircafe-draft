@@ -1,15 +1,4 @@
 import { defineType, defineField, type Rule } from 'sanity';
-import { AutoSlugInput } from '../components/AutoSlugInput';
-
-const slugify = (input: string) =>
-  input
-    .toLowerCase()
-    .replace(/ß/g, 'ss')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 96);
 
 const timeValidation = (rule: Rule) =>
   rule
@@ -35,18 +24,12 @@ export default defineType({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
-      description: 'Wird automatisch aus dem Titel erzeugt (Datum & Beginn werden bei Bedarf angehängt) und muss nicht manuell gepflegt werden.',
+      description:
+        'Bitte selbst einen eindeutigen Slug vergeben (z. B. repair-cafe-leonberg-maerz-2025).',
       options: {
-        source: 'title',
-        maxLength: 96,
-        slugify,
-        documentType: 'event'
+        maxLength: 96
       },
-      validation: (rule) => rule.required(),
-      readOnly: true,
-      components: {
-        input: AutoSlugInput
-      }
+      validation: (rule) => rule.required()
     }),
     defineField({
       name: 'date',
