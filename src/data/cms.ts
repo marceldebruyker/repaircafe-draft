@@ -57,6 +57,8 @@ export interface GuestbookEntry {
 export interface AboutPageContent {
   teamImage?: string;
   teamImageAlt?: string;
+  teamImageTitle?: string;
+  teamImageDescription?: string;
   missionParagraphs?: string[];
 }
 
@@ -241,6 +243,8 @@ const fallbackGallery: GalleryItem[] = [
 const fallbackAboutPage: AboutPageContent = {
   teamImage: undefined,
   teamImageAlt: 'Engagiertes Team des Repair Café Leonberg',
+  teamImageTitle: 'Teamgeist',
+  teamImageDescription: 'Gemeinsam stark fürs Reparieren – das Team des Repair Café Leonberg.',
   missionParagraphs: [
     'Reparieren ist mehr als Technik. Es ist Gemeinschaft, Nachhaltigkeit und Empowerment. Im Repair Café Leonberg bringen wir Menschen zusammen, die ihre Lieblingsgeräte behalten, Ressourcen schonen und voneinander lernen wollen. Egal ob Sie Erfahrung mitbringen oder einfach neugierig sind – bei uns sind Sie willkommen.',
     'Jede Veranstaltung wird von einem Team aus Elektronik-, Textil- und Fahrradbegeisterten vorbereitet. Dazu kommen Gastgeber:innen, die für Kaffee und eine freundliche Atmosphäre sorgen.',
@@ -388,6 +392,8 @@ export async function getAboutPageContent(): Promise<AboutPageContent> {
     return {
       teamImage: data?.teamImage ?? fallbackAboutPage.teamImage,
       teamImageAlt: data?.teamImageAlt ?? fallbackAboutPage.teamImageAlt,
+      teamImageTitle: data?.teamImageTitle ?? fallbackAboutPage.teamImageTitle,
+      teamImageDescription: data?.teamImageDescription ?? fallbackAboutPage.teamImageDescription,
       missionParagraphs:
         data?.missionParagraphs && data.missionParagraphs.length > 0
           ? data.missionParagraphs

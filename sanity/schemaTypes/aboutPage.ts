@@ -20,6 +20,19 @@ export default defineType({
       description: 'Beschreibt das Foto für Screenreader und SEO.'
     }),
     defineField({
+      name: 'teamImageTitle',
+      title: 'Titel über dem Teamfoto',
+      type: 'string',
+      description: 'Kurzer Titel, der auf dem Bild angezeigt wird.'
+    }),
+    defineField({
+      name: 'teamImageDescription',
+      title: 'Beschreibung auf dem Teamfoto',
+      type: 'text',
+      rows: 3,
+      description: 'Kurzer Satz, der das Team oder die Szene beschreibt.'
+    }),
+    defineField({
       name: 'missionParagraphs',
       title: 'Textabschnitte für "Unsere Mission"',
       type: 'array',

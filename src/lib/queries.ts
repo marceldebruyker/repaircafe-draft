@@ -100,6 +100,8 @@ export const aboutPageQuery = groq`
   *[_type == "aboutPage"][0] {
     "teamImage": teamImage.asset->url,
     teamImageAlt,
+    teamImageTitle,
+    teamImageDescription,
     missionParagraphs
   }
 `;
