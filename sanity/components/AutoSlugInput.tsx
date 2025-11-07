@@ -41,9 +41,7 @@ export function AutoSlugInput(props: SlugInputProps) {
   const baseFromTitleOnly = title ? slugify(title) : '';
 
   useEffect(() => {
-    const shouldGenerate = Boolean(
-      baseId && base && (!currentSlug || currentSlug === baseFromTitleOnly)
-    );
+    const shouldGenerate = Boolean(base && (!currentSlug || currentSlug === baseFromTitleOnly));
     if (!shouldGenerate) return;
 
     let cancelled = false;
@@ -77,7 +75,12 @@ export function AutoSlugInput(props: SlugInputProps) {
       }
 
       if (!cancelled && unique) {
-        onChange(set({current: candidate}));
+        onChange(
+          set({
+            _type: 'slug',
+            current: candidate
+          }),
+        );
       }
     };
 
