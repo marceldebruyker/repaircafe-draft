@@ -35,11 +35,12 @@ export default defineType({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
-      description: 'Wird automatisch aus dem Titel erzeugt und muss nicht manuell gepflegt werden.',
+      description: 'Wird automatisch aus Titel, Datum und Beginn erzeugt und muss nicht manuell gepflegt werden.',
       options: {
         source: 'title',
         maxLength: 96,
-        slugify
+        slugify,
+        documentType: 'event'
       },
       validation: (rule) => rule.required(),
       readOnly: true,

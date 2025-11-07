@@ -13,36 +13,47 @@ const slugify = (input: string) =>
     .replace(/^-+|-+$/g, '')
     .slice(0, 96);
 
+const buildSlugBase = (title?: string, date?: string, startTime?: string) => {
+  const normalizedDate = date?.split('T')[0];
+  const normalizedTime = startTime?.replace(':', '-');
+  const parts = [title, normalizedDate, normalizedTime].filter(Boolean);
+  return parts.length ? slugify(parts.join(' ')) : '';
+};
+
 const DEFAULT_API_VERSION = '2024-01-01';
 
 export function AutoSlugInput(props: SlugInputProps) {
   const {value, onChange, documentId, schemaType} = props;
   const client = useClient({apiVersion: DEFAULT_API_VERSION});
   const title = useFormValue(['title']) as string | undefined;
+  const date = useFormValue(['date']) as string | undefined;
+  const startTime = useFormValue(['startTime']) as string | undefined;
 
   const currentSlug = value?.current ?? '';
   const baseId = useMemo(() => {
     if (!documentId) return undefined;
     return documentId.replace(/^drafts\./, '');
   }, [documentId]);
+  const targetDocumentType =
+    (schemaType?.options as {documentType?: string} | undefined)?.documentType ?? 'event';
 
   useEffect(() => {
-    const shouldGenerate = Boolean(title && !currentSlug && schemaType?.name && baseId);
+    const shouldGenerate = Boolean(title && date && startTime && !currentSlug && baseId);
     if (!shouldGenerate) return;
 
     let cancelled = false;
 
     const generate = async () => {
-      const base = slugify(title || '');
+      const base = buildSlugBase(title, date, startTime);
       if (!base) return;
 
       let candidate = base;
       let suffix = 1;
 
       const isUnique = async (slugCandidate: string) => {
-        if (!schemaType?.name || !baseId) return true;
+        if (!baseId) return true;
         const params = {
-          type: schemaType.name,
+          type: targetDocumentType,
           slug: slugCandidate,
           draftId: `drafts.${baseId}`,
           publishedId: baseId
@@ -52,7 +63,7 @@ export function AutoSlugInput(props: SlugInputProps) {
           return await client.fetch<boolean>(query, params);
         } catch (err) {
           console.error('Failed to verify slug uniqueness', err);
-          return false;
+          return true;
         }
       };
 
@@ -73,7 +84,7 @@ export function AutoSlugInput(props: SlugInputProps) {
     return () => {
       cancelled = true;
     };
-  }, [title, currentSlug, schemaType?.name, baseId, client, onChange]);
+  }, [title, date, startTime, currentSlug, targetDocumentType, baseId, client, onChange]);
 
   return (
     <Card padding={3} radius={2} shadow={0} tone="transparent">
@@ -82,7 +93,9 @@ export function AutoSlugInput(props: SlugInputProps) {
           Slug
         </Text>
         <Text size={1} muted={!currentSlug}>
-          {currentSlug ? currentSlug : 'Wird automatisch generiert, sobald ein Titel vorhanden ist.'}
+          {currentSlug
+            ? currentSlug
+            : 'Wird automatisch generiert, sobald Titel, Datum und Beginn eingetragen sind.'}
         </Text>
       </Stack>
     </Card>
